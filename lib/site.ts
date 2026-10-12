@@ -1,0 +1,17 @@
+export const siteConfig = {
+  name: process.env.NEXT_PUBLIC_SITE_NAME || "ModelFit",
+  description:
+    "Estimate LLM memory, test GPU fit, and turn a model into a practical deployment plan.",
+  url: process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3001",
+  gpuPricesUrl: process.env.NEXT_PUBLIC_GPU_PRICES_URL || "http://localhost:3000",
+  computeUrl: process.env.NEXT_PUBLIC_FLATKEY_COMPUTE_URL || "https://flatkey.ai/compute",
+};
+
+export function flatkeyComputeUrl(content: string, campaign = "model_fit") {
+  const url = new URL(siteConfig.computeUrl);
+  url.searchParams.set("utm_source", "modelfit");
+  url.searchParams.set("utm_medium", "referral");
+  url.searchParams.set("utm_campaign", campaign);
+  url.searchParams.set("utm_content", content);
+  return url.toString();
+}
