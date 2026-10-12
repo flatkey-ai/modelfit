@@ -12,6 +12,7 @@ export const metadata: Metadata = {
   },
   description: siteConfig.description,
   alternates: { canonical: "/" },
+  verification: { google: "_GSKFOIUP-szsVY8fQJ58rsU7UhdQJtMkHIunwcxGHc" },
   robots: {
     index: true,
     follow: true,
