@@ -2,18 +2,20 @@
 
 Independent model-to-hardware planning site. The launch UI is branded **ModelFit** through `NEXT_PUBLIC_SITE_NAME`; the final brand and domain are environment-driven.
 
-The product direction is inspired by RunMyLLM’s model/hardware decision flow, with additional production-serving inputs and a handoff to the separate GPU price site.
+The product direction is inspired by RunMyLLM’s model/hardware decision flow, with additional production-serving inputs, internal hardware profiles, and a selective compute handoff after the fit result.
 
 ## Included
 
 - Interactive weight, KV-cache, and runtime-memory estimator
 - Quantization, context, concurrency, cache precision, and GPU-count controls
 - GPU-fit recommendations with sample hourly cost
-- Indexable model requirement pages
-- Copyable vLLM starter commands
+- Model directory plus 11 indexable model requirement pages
+- GPU hardware directory plus 9 model-fit profile pages
+- Substantial VRAM-calculation and context-window guides with FAQs
+- Copyable vLLM command templates with explicit checkpoint and backend caveats
 - Published formula and limitations page
-- Sitemap, standalone Next.js build, and Docker image
-- Result-level Flatkey Compute CTAs with model and hardware UTM attribution
+- Per-page canonical metadata, structured data, sitemap, robots policy, standalone Next.js build, and Docker image
+- One result-level Flatkey Compute CTA on eligible calculator, model-fit, and hardware-fit pages, with model and hardware UTM attribution
 
 ## Local development
 
@@ -40,8 +42,7 @@ Copy `.env.example` to `.env.local` and set:
 
 - `NEXT_PUBLIC_SITE_URL`: canonical production origin
 - `NEXT_PUBLIC_SITE_NAME`: final public brand
-- `NEXT_PUBLIC_GPU_PRICES_URL`: external URL of the GPU-price site
-- `NEXT_PUBLIC_FLATKEY_COMPUTE_URL`: Flatkey Compute landing page (defaults to `https://flatkey.ai/compute`)
+- `NEXT_PUBLIC_FLATKEY_COMPUTE_URL`: Flatkey Compute product entry (defaults to `https://console.flatkey.ai/compute/market`)
 
 ## Estimation scope
 

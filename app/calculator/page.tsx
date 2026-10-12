@@ -5,6 +5,9 @@ import { FitCalculator } from "@/components/fit-calculator";
 export const metadata: Metadata = {
   title: "LLM VRAM calculator",
   description: "Estimate weights, KV cache, runtime overhead, and recommended GPU memory for open-model inference.",
+  alternates: { canonical: "/calculator" },
+  openGraph: { title: "LLM VRAM calculator", description: "Estimate model weights, KV cache, runtime overhead, and GPU capacity for LLM inference.", url: "/calculator", type: "website" },
+  twitter: { card: "summary", title: "LLM VRAM calculator", description: "Estimate model weights, KV cache, runtime overhead, and GPU capacity for LLM inference." },
 };
 
 export default function CalculatorPage() {

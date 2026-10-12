@@ -18,7 +18,7 @@ export default function Home() {
           <div className="hero-label"><span>01</span><p>Open-model deployment planner</p></div>
           <h1>Will this<br />model <em>fit?</em></h1>
           <p className="hero-intro">Turn model size, quantization, context, and concurrency into a practical GPU plan—before you reserve a machine.</p>
-          <div className="hero-links"><Link href="#calculator">Check a model <b>↓</b></Link><a href={flatkeyComputeUrl("hero")} target="_blank" rel="noreferrer">Find GPU capacity ↗</a></div>
+          <div className="hero-links"><a href={flatkeyComputeUrl("home_hero", "homepage")} target="_blank" rel="sponsored nofollow noreferrer">Open Flatkey Compute <b>↗</b></a><Link href="#calculator">Check a model ↓</Link></div>
         </div>
         <div className="hero-visual" aria-hidden="true">
           <div className="orbit orbit-a"><span>WEIGHTS</span></div>
@@ -32,7 +32,7 @@ export default function Home() {
       </section>
 
       <section className="signal-strip">
-        <div className="frame"><span><b>INPUT</b> Model + workload</span><i>→</i><span><b>CALCULATE</b> Weights + cache + overhead</span><i>→</i><span><b>OUTPUT</b> GPU plan + launch command</span></div>
+        <div className="frame"><span><b>INPUT</b> Model + workload</span><i>→</i><span><b>CALCULATE</b> Weights + cache + overhead</span><i>→</i><span><b>OUTPUT</b> GPU plan + command template</span></div>
       </section>
 
       <section className="calculator-section frame" id="calculator">
@@ -47,7 +47,7 @@ export default function Home() {
         <div className="frame">
           <div className="section-intro inverse">
             <div><span className="section-index">03 / Model index</span><h2>Choose the model.<br />We’ll map the hardware.</h2></div>
-            <p>Curated model cards keep parameter counts, context limits, architecture notes, and source links separate from the calculator itself.</p>
+            <div className="section-intro-link"><p>Curated model cards keep parameter counts, context limits, architecture notes, and source links separate from the calculator itself.</p><Link href="/models">Explore the full model directory →</Link></div>
           </div>
           <div className="model-list">
             {models.map((model, index) => {
@@ -72,7 +72,16 @@ export default function Home() {
         <div className="decision-grid">
           <article><span>01</span><div className="decision-icon memory-icon"><i /><i /><i /></div><h3>Does it fit?</h3><p>Break total memory into weights, KV cache, and runtime workspace instead of relying on parameter count alone.</p></article>
           <article><span>02</span><div className="decision-icon cards-icon"><i /><i /></div><h3>What should I rent?</h3><p>Match the per-device estimate to practical GPU profiles and keep enough headroom for stable serving.</p></article>
-          <article><span>03</span><div className="decision-icon code-icon">$</div><h3>How do I launch?</h3><p>Carry the selected model, context, and parallelism directly into a reproducible starter command.</p></article>
+          <article><span>03</span><div className="decision-icon code-icon">$</div><h3>How do I launch?</h3><p>Carry context, cache precision, and parallelism into a command template. Quantized plans still need a compatible checkpoint and backend.</p></article>
+        </div>
+      </section>
+
+      <section className="resource-section frame">
+        <div className="section-intro"><div><span className="section-index">05 / Planning library</span><h2>Go deeper than<br />a single number.</h2></div><p>Use the hardware profiles and field guides to understand why the estimate changes—and what to validate before renting a machine.</p></div>
+        <div className="resource-grid">
+          <Link href="/hardware"><span>Hardware directory</span><h3>Compare GPU VRAM profiles</h3><p>See which starter models fit across 16 GB to 192 GB hardware envelopes.</p><b>9 profiles →</b></Link>
+          <Link href="/guides/llm-vram-calculator"><span>Guide 01</span><h3>How to calculate LLM VRAM</h3><p>Break memory into weights, KV cache, runtime workspace, and operating headroom.</p><b>Read guide →</b></Link>
+          <Link href="/guides/context-window-vram"><span>Guide 02</span><h3>Context windows and KV cache</h3><p>Understand how active tokens, concurrent sequences, and cache precision use memory.</p><b>Read guide →</b></Link>
         </div>
       </section>
 
@@ -80,7 +89,7 @@ export default function Home() {
         <div className="frame">
           <span className="section-index">Ready when you are</span>
           <h2>Stop guessing.<br /><em>Run the fit check.</em></h2>
-          <a href={flatkeyComputeUrl("closing_cta")} target="_blank" rel="noreferrer">Find capacity on Flatkey <span>↗</span></a>
+          <Link href="/calculator">Open the full calculator <span>→</span></Link>
         </div>
       </section>
     </main>

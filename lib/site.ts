@@ -3,9 +3,14 @@ export const siteConfig = {
   description:
     "Estimate LLM memory, test GPU fit, and turn a model into a practical deployment plan.",
   url: process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3001",
-  gpuPricesUrl: process.env.NEXT_PUBLIC_GPU_PRICES_URL || "http://localhost:3000",
-  computeUrl: process.env.NEXT_PUBLIC_FLATKEY_COMPUTE_URL || "https://flatkey.ai/compute",
+  computeUrl:
+    process.env.NEXT_PUBLIC_FLATKEY_COMPUTE_URL ||
+    "https://console.flatkey.ai/compute/market",
 };
+
+export function absoluteUrl(path = "") {
+  return new URL(path, siteConfig.url).toString();
+}
 
 export function flatkeyComputeUrl(content: string, campaign = "model_fit") {
   const url = new URL(siteConfig.computeUrl);

@@ -1,9 +1,19 @@
 import type { MetadataRoute } from "next";
-import { models } from "@/lib/data";
-import { siteConfig } from "@/lib/site";
+import { hardware, models } from "@/lib/data";
+import { absoluteUrl } from "@/lib/site";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const staticRoutes = ["", "/calculator", "/methodology"].map((route) => ({ url: `${siteConfig.url}${route}`, lastModified: new Date() }));
-  const modelRoutes = models.map((model) => ({ url: `${siteConfig.url}/models/${model.slug}`, lastModified: new Date() }));
-  return [...staticRoutes, ...modelRoutes];
+  const staticRoutes: MetadataRoute.Sitemap = [
+    { route: "", priority: 1, changeFrequency: "weekly" as const },
+    { route: "/calculator", priority: .95, changeFrequency: "monthly" as const },
+    { route: "/models", priority: .9, changeFrequency: "monthly" as const },
+    { route: "/hardware", priority: .9, changeFrequency: "monthly" as const },
+    { route: "/guides", priority: .8, changeFrequency: "monthly" as const },
+    { route: "/guides/llm-vram-calculator", priority: .85, changeFrequency: "monthly" as const },
+    { route: "/guides/context-window-vram", priority: .85, changeFrequency: "monthly" as const },
+    { route: "/methodology", priority: .7, changeFrequency: "yearly" as const },
+  ].map(({ route, priority, changeFrequency }) => ({ url: absoluteUrl(route || "/"), priority, changeFrequency }));
+  const modelRoutes: MetadataRoute.Sitemap = models.map((model) => ({ url: absoluteUrl(`/models/${model.slug}`), changeFrequency: "monthly", priority: .75 }));
+  const hardwareRoutes: MetadataRoute.Sitemap = hardware.map((gpu) => ({ url: absoluteUrl(`/hardware/${gpu.slug}`), changeFrequency: "monthly", priority: .75 }));
+  return [...staticRoutes, ...modelRoutes, ...hardwareRoutes];
 }

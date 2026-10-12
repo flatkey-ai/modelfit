@@ -9,7 +9,13 @@ export type ModelRecord = {
   nativeContext: number;
   architecture: string;
   license: string;
+  /** FP16 full-attention KV cache GiB per 1,000 active tokens, derived from the model config. */
   kvGiBPer1kTokens: number;
+  /** Configured KV-head count, used to avoid assuming impossible cache sharding. */
+  kvHeads: number;
+  /** Optional hybrid-cache behavior for architectures with local/sliding attention layers. */
+  slidingWindowTokens?: number;
+  slidingWindowLayerFraction?: number;
   tags: string[];
   summary: string;
   sourceUrl: string;
@@ -42,6 +48,9 @@ export const quantizations: Quantization[] = [
   { id: "q4", label: "4-bit", bits: 4, overhead: 1.16, quality: "Efficient" },
 ];
 
+// KV coefficients use the official model configuration dimensions and the FP16 formula:
+// 2 (K + V) × layers × KV heads × head dimension × 2 bytes × 1,000 / 2^30.
+// Gemma 2 hybrid-cache metadata follows google/gemma_pytorch's alternating local/global layers.
 export const models: ModelRecord[] = [
   {
     slug: "phi-3-mini-128k-instruct",
@@ -53,7 +62,8 @@ export const models: ModelRecord[] = [
     nativeContext: 131072,
     architecture: "Dense transformer",
     license: "MIT",
-    kvGiBPer1kTokens: 0.047,
+    kvGiBPer1kTokens: 0.366211, // 32 layers × 32 KV heads × 96 head dim
+    kvHeads: 32,
     tags: ["small", "long context", "local"],
     summary: "A compact long-context model suited to laptops, small GPUs, and low-cost endpoints.",
     sourceUrl: "https://huggingface.co/microsoft/Phi-3-mini-128k-instruct",
@@ -68,7 +78,8 @@ export const models: ModelRecord[] = [
     nativeContext: 32768,
     architecture: "Dense transformer",
     license: "Apache 2.0",
-    kvGiBPer1kTokens: 0.125,
+    kvGiBPer1kTokens: 0.12207, // 32 layers × 8 KV heads × 128 head dim
+    kvHeads: 8,
     tags: ["general", "instruct", "open"],
     summary: "A dependable open 7B baseline with broad runtime and quantization support.",
     sourceUrl: "https://docs.mistral.ai/models/mistral-7b-0-3",
@@ -83,7 +94,8 @@ export const models: ModelRecord[] = [
     nativeContext: 32768,
     architecture: "Dense transformer · GQA",
     license: "Apache 2.0",
-    kvGiBPer1kTokens: 0.035,
+    kvGiBPer1kTokens: 0.053406, // 28 layers × 4 KV heads × 128 head dim
+    kvHeads: 4,
     tags: ["multilingual", "coding", "instruct"],
     summary: "A compact multilingual model with strong instruction following and efficient GQA memory use.",
     sourceUrl: "https://huggingface.co/Qwen/Qwen2.5-7B-Instruct",
@@ -98,7 +110,8 @@ export const models: ModelRecord[] = [
     nativeContext: 131072,
     architecture: "Dense transformer · GQA",
     license: "Llama 3.1 Community",
-    kvGiBPer1kTokens: 0.122,
+    kvGiBPer1kTokens: 0.12207, // 32 layers × 8 KV heads × 128 head dim
+    kvHeads: 8,
     tags: ["general", "long context", "popular"],
     summary: "A mainstream small model with a large context window and a mature deployment ecosystem.",
     sourceUrl: "https://huggingface.co/meta-llama/Llama-3.1-8B-Instruct",
@@ -113,7 +126,10 @@ export const models: ModelRecord[] = [
     nativeContext: 8192,
     architecture: "Dense transformer · sliding attention",
     license: "Gemma",
-    kvGiBPer1kTokens: 0.156,
+    kvGiBPer1kTokens: 0.320435, // 42 layers × 8 KV heads × 256 head dim
+    kvHeads: 8,
+    slidingWindowTokens: 4096,
+    slidingWindowLayerFraction: 0.5,
     tags: ["general", "local", "instruct"],
     summary: "A compact instruction model that targets high quality within consumer GPU memory limits.",
     sourceUrl: "https://ai.google.dev/gemma/docs/core/model_card_2",
@@ -128,7 +144,8 @@ export const models: ModelRecord[] = [
     nativeContext: 32768,
     architecture: "Dense transformer · GQA",
     license: "Apache 2.0",
-    kvGiBPer1kTokens: 0.047,
+    kvGiBPer1kTokens: 0.183105, // 48 layers × 8 KV heads × 128 head dim
+    kvHeads: 8,
     tags: ["multilingual", "coding", "mid-size"],
     summary: "A capable mid-size model that remains practical on 24 GB hardware when quantized.",
     sourceUrl: "https://huggingface.co/Qwen/Qwen2.5-14B-Instruct",
@@ -143,7 +160,10 @@ export const models: ModelRecord[] = [
     nativeContext: 8192,
     architecture: "Dense transformer · sliding attention",
     license: "Gemma",
-    kvGiBPer1kTokens: 0.234,
+    kvGiBPer1kTokens: 0.350952, // 46 layers × 16 KV heads × 128 head dim
+    kvHeads: 16,
+    slidingWindowTokens: 4096,
+    slidingWindowLayerFraction: 0.5,
     tags: ["quality", "single GPU", "instruct"],
     summary: "A larger Gemma model that lands neatly in the 24–48 GB deployment decision range.",
     sourceUrl: "https://ai.google.dev/gemma/docs/core/model_card_2",
@@ -158,7 +178,8 @@ export const models: ModelRecord[] = [
     nativeContext: 32768,
     architecture: "Dense transformer · GQA",
     license: "Apache 2.0",
-    kvGiBPer1kTokens: 0.062,
+    kvGiBPer1kTokens: 0.244141, // 64 layers × 8 KV heads × 128 head dim
+    kvHeads: 8,
     tags: ["coding", "reasoning", "multilingual"],
     summary: "A strong mid-large model that distinguishes 24 GB, 48 GB, and 80 GB deployment options.",
     sourceUrl: "https://huggingface.co/Qwen/Qwen2.5-32B-Instruct",
@@ -174,7 +195,8 @@ export const models: ModelRecord[] = [
     nativeContext: 32768,
     architecture: "Sparse mixture of experts",
     license: "Apache 2.0",
-    kvGiBPer1kTokens: 0.125,
+    kvGiBPer1kTokens: 0.12207, // 32 layers × 8 KV heads × 128 head dim
+    kvHeads: 8,
     tags: ["MoE", "instruct", "throughput"],
     summary: "A sparse expert model whose active compute is smaller than its full weight-memory footprint.",
     sourceUrl: "https://mistral.ai/news/mixtral-of-experts/",
@@ -189,7 +211,8 @@ export const models: ModelRecord[] = [
     nativeContext: 131072,
     architecture: "Dense transformer · GQA",
     license: "Llama 3.1 Community",
-    kvGiBPer1kTokens: 0.313,
+    kvGiBPer1kTokens: 0.305176, // 80 layers × 8 KV heads × 128 head dim
+    kvHeads: 8,
     tags: ["large", "production", "long context"],
     summary: "A common production reference point for multi-GPU serving and long-context planning.",
     sourceUrl: "https://huggingface.co/meta-llama/Llama-3.1-70B-Instruct",
@@ -204,7 +227,8 @@ export const models: ModelRecord[] = [
     nativeContext: 32768,
     architecture: "Dense transformer · GQA",
     license: "Qwen",
-    kvGiBPer1kTokens: 0.156,
+    kvGiBPer1kTokens: 0.305176, // 80 layers × 8 KV heads × 128 head dim
+    kvHeads: 8,
     tags: ["large", "multilingual", "reasoning"],
     summary: "A large multilingual model typically deployed with quantization or tensor parallelism.",
     sourceUrl: "https://huggingface.co/Qwen/Qwen2.5-72B-Instruct",
@@ -235,9 +259,28 @@ export function estimateMemory(
 ) {
   const weightGiB = (model.parametersB * 1_000_000_000 * (quantization.bits / 8)) / 1_073_741_824 * quantization.overhead;
   const kvMultiplier = kvPrecision === "fp8" ? 0.5 : 1;
-  const kvGiB = model.kvGiBPer1kTokens * (context / 1000) * concurrency * kvMultiplier;
+  const slidingFraction = model.slidingWindowLayerFraction ?? 0;
+  const slidingTokens = model.slidingWindowTokens
+    ? Math.min(context, model.slidingWindowTokens)
+    : context;
+  const cacheTokenEquivalents = context * (1 - slidingFraction) + slidingTokens * slidingFraction;
+  const kvGiB = model.kvGiBPer1kTokens * (cacheTokenEquivalents / 1000) * concurrency * kvMultiplier;
   const workspaceGiB = Math.max(2, weightGiB * 0.1);
   const subtotalGiB = weightGiB + kvGiB + workspaceGiB;
   const recommendedGiB = subtotalGiB / 0.85;
   return { weightGiB, kvGiB, workspaceGiB, subtotalGiB, recommendedGiB };
+}
+
+export function estimatePerDeviceMemory(
+  model: ModelRecord,
+  estimate: ReturnType<typeof estimateMemory>,
+  devices: number,
+) {
+  const weightGiB = estimate.weightGiB / devices;
+  // Tensor parallel runtimes cannot keep splitting KV heads once every rank has one.
+  const kvShardCount = Math.min(devices, model.kvHeads);
+  const kvGiB = estimate.kvGiB / kvShardCount;
+  const workspaceGiB = Math.max(2, weightGiB * 0.1);
+  const subtotalGiB = weightGiB + kvGiB + workspaceGiB;
+  return { weightGiB, kvGiB, workspaceGiB, subtotalGiB, kvShardCount };
 }

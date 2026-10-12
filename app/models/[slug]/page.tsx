@@ -17,6 +17,18 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return {
     title: `${model.name} GPU & VRAM requirements`,
     description: `Estimate GPU memory, quantization options, context cost, and hardware choices for ${model.name}.`,
+    alternates: { canonical: `/models/${model.slug}` },
+    openGraph: {
+      title: `${model.name} GPU and VRAM requirements`,
+      description: `Plan ${model.name} inference memory, quantization, context length, and GPU capacity.`,
+      type: "article",
+      url: `/models/${model.slug}`,
+    },
+    twitter: {
+      card: "summary",
+      title: `${model.name} GPU and VRAM requirements`,
+      description: `Plan ${model.name} inference memory, quantization, context length, and GPU capacity.`,
+    },
   };
 }
 
@@ -32,9 +44,9 @@ export default async function ModelPage({ params }: PageProps) {
   return (
     <main className="model-detail-page">
       <section className="model-detail-hero frame">
-        <div className="crumbs"><Link href="/">Home</Link><span>/</span><Link href="/#models">Models</Link><span>/</span><strong>{model.name}</strong></div>
+        <div className="crumbs"><Link href="/">Home</Link><span>/</span><Link href="/models">Models</Link><span>/</span><strong>{model.name}</strong></div>
         <div className="model-detail-title">
-          <div><span className="section-index">{model.maker} / {model.family}</span><h1>{model.name}</h1><p>{model.summary}</p><div className="model-detail-actions"><a className="model-compute-cta" href={flatkeyComputeUrl(model.slug)} target="_blank" rel="noreferrer">Find GPU capacity on Flatkey ↗</a><a href={model.sourceUrl} target="_blank" rel="noreferrer">Open source model card ↗</a></div></div>
+          <div><span className="section-index">{model.maker} / {model.family}</span><h1>{model.name}</h1><p>{model.summary}</p><div className="model-detail-actions"><a className="model-compute-cta" href={flatkeyComputeUrl(`${model.slug}_profile`, "model_profile")} target="_blank" rel="sponsored nofollow noreferrer">Check {model.family} compute on Flatkey ↗</a><Link href="#fit-planner">Tune the memory plan ↓</Link><a href={model.sourceUrl} target="_blank" rel="noreferrer">Official model card ↗</a></div></div>
           <div className="model-fingerprint" aria-label={`${model.parametersB} billion parameters`}><div><span>{model.parametersB}</span><small>B parameters</small></div><i /><i /><i /></div>
         </div>
         <div className="model-facts">
@@ -53,13 +65,13 @@ export default async function ModelPage({ params }: PageProps) {
         <div className="memory-comparison">
           <article><span>Efficient</span><h3>4-bit · 8K</h3><strong>{q4Estimate.subtotalGiB.toFixed(1)} <small>GiB</small></strong><p>Useful starting point for local evaluation and cost-sensitive inference.</p></article>
           <article><span>Quality-first</span><h3>BF16 · 8K</h3><strong>{bf16Estimate.subtotalGiB.toFixed(1)} <small>GiB</small></strong><p>Preserves original weight precision and establishes a conservative serving baseline.</p></article>
-          <article className="match-card"><span>Smallest comfortable profiles</span>{q4Matches.length ? q4Matches.map((gpu) => <div key={gpu.slug}><strong>{gpu.name}</strong><small>{gpu.vramGb} GB · {gpu.tier}</small></div>) : <p>Multi-GPU deployment required.</p>}</article>
+          <article className="match-card"><span>Smallest profiles within the 85% ceiling</span>{q4Matches.length ? q4Matches.map((gpu) => <Link href={`/hardware/${gpu.slug}`} key={gpu.slug}><strong>{gpu.name}</strong><small>{gpu.vramGb} GB · {gpu.tier}</small></Link>) : <p>Multi-GPU deployment required.</p>}</article>
         </div>
       </section>
 
-      <section className="embedded-calculator frame">
+      <section className="embedded-calculator frame" id="fit-planner">
         <div className="section-intro"><div><span className="section-index">Interactive plan</span><h2>Tune {model.family}.</h2></div><p>The worksheet starts with this model selected. Adjust context, precision, cache, and GPU count for your workload.</p></div>
-        <FitCalculator initialModelSlug={model.slug} compact />
+        <FitCalculator initialModelSlug={model.slug} compact showCommercialCta={false} />
       </section>
     </main>
   );

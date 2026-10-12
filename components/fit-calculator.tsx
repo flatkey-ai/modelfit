@@ -2,12 +2,13 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { estimateMemory, hardware, models, quantizations } from "@/lib/data";
-import { flatkeyComputeUrl, siteConfig } from "@/lib/site";
+import { estimateMemory, estimatePerDeviceMemory, hardware, models, quantizations } from "@/lib/data";
+import { flatkeyComputeUrl } from "@/lib/site";
 
 type FitCalculatorProps = {
   initialModelSlug?: string;
   compact?: boolean;
+  showCommercialCta?: boolean;
 };
 
 const contexts = [2048, 4096, 8192, 16384, 32768, 65536, 131072];
@@ -15,7 +16,7 @@ const contexts = [2048, 4096, 8192, 16384, 32768, 65536, 131072];
 const formatContext = (value: number) => value >= 1024 ? `${Math.round(value / 1024)}K` : String(value);
 const formatGiB = (value: number) => `${value.toFixed(value < 10 ? 1 : 0)} GiB`;
 
-export function FitCalculator({ initialModelSlug = "llama-31-8b-instruct", compact = false }: FitCalculatorProps) {
+export function FitCalculator({ initialModelSlug = "llama-31-8b-instruct", compact = false, showCommercialCta = true }: FitCalculatorProps) {
   const [modelSlug, setModelSlug] = useState(initialModelSlug);
   const [quantizationId, setQuantizationId] = useState("q4");
   const [context, setContext] = useState(8192);
@@ -27,7 +28,11 @@ export function FitCalculator({ initialModelSlug = "llama-31-8b-instruct", compa
   const model = models.find((entry) => entry.slug === modelSlug) || models[0];
   const quantization = quantizations.find((entry) => entry.id === quantizationId) || quantizations[0];
   const estimate = estimateMemory(model, quantization, context, concurrency, kvPrecision);
-  const perDevice = (estimate.weightGiB + estimate.kvGiB) / devices + estimate.workspaceGiB;
+  const perDeviceEstimate = estimatePerDeviceMemory(model, estimate, devices);
+  const perDeviceWeight = perDeviceEstimate.weightGiB;
+  const perDeviceKv = perDeviceEstimate.kvGiB;
+  const perDeviceWorkspace = perDeviceEstimate.workspaceGiB;
+  const perDevice = perDeviceEstimate.subtotalGiB;
   const recommendedPerDevice = perDevice / 0.85;
 
   const matches = useMemo(() => {
@@ -42,12 +47,25 @@ export function FitCalculator({ initialModelSlug = "llama-31-8b-instruct", compa
       .slice(0, 3);
   }, [devices, perDevice]);
 
-  const weightPercent = estimate.weightGiB / estimate.subtotalGiB * 100;
-  const kvPercent = estimate.kvGiB / estimate.subtotalGiB * 100;
+  const weightPercent = perDeviceWeight / perDevice * 100;
+  const kvPercent = perDeviceKv / perDevice * 100;
   const workspacePercent = 100 - weightPercent - kvPercent;
   const maxContext = Math.min(model.nativeContext, 131072);
   const availableContexts = contexts.filter((entry) => entry <= maxContext);
-  const command = `vllm serve ${model.modelId} --tensor-parallel-size ${devices} --max-model-len ${context}`;
+  const quantizedPlan = quantizationId !== "bf16";
+  const commandModel = quantizedPlan ? "YOUR_COMPATIBLE_QUANTIZED_MODEL_ID" : model.modelId;
+  const command = [
+    `vllm serve ${commandModel}`,
+    `--tensor-parallel-size ${devices}`,
+    `--max-model-len ${context}`,
+    kvPrecision === "fp8" ? "--kv-cache-dtype fp8" : "",
+    quantizedPlan ? "--quantization YOUR_MATCHING_BACKEND" : "",
+  ].filter(Boolean).join(" ");
+  const commandNote = quantizedPlan
+    ? `${quantization.label} is a memory assumption, not a checkpoint choice. Replace both placeholders with a compatible quantized artifact and its vLLM backend.`
+    : kvPrecision === "fp8"
+      ? "FP8 KV cache requires model, runtime, and GPU support; validate output quality on the target stack."
+      : "Uses the upstream model ID at its configured weight dtype; verify the resolved dtype before deployment.";
 
   async function copyCommand() {
     await navigator.clipboard.writeText(command);
@@ -102,39 +120,47 @@ export function FitCalculator({ initialModelSlug = "llama-31-8b-instruct", compa
             <p>Includes 15% operating headroom for the selected runtime profile.</p>
           </div>
 
+          {showCommercialCta ? (
+            <div className="fit-conversion">
+              <div><span>Deployment next step</span><strong>Check live capacity on Flatkey Compute.</strong><p>Carry this workload estimate into the product and review currently available GPU options.</p></div>
+              <a className="primary-conversion" href={flatkeyComputeUrl(`${model.slug}_result`)} target="_blank" rel="sponsored nofollow noreferrer">Continue to Flatkey Compute <b>↗</b></a>
+            </div>
+          ) : null}
+
           <div className="memory-map">
-            <div className="memory-map-labels"><span>Estimated allocation</span><strong>{formatGiB(estimate.subtotalGiB)} total</strong></div>
-            <div className="memory-bar" aria-label={`Estimated memory ${formatGiB(estimate.subtotalGiB)}`}>
+            <div className="memory-map-labels"><span>Estimated allocation per GPU</span><strong>{formatGiB(perDevice)} each</strong></div>
+            <div className="memory-bar" aria-label={`Estimated per-GPU memory ${formatGiB(perDevice)}`}>
               <i className="weights" style={{ width: `${weightPercent}%` }} />
               <i className="kv" style={{ width: `${kvPercent}%` }} />
               <i className="workspace" style={{ width: `${workspacePercent}%` }} />
             </div>
             <div className="memory-legend">
-              <span><i className="weights" />Weights <strong>{formatGiB(estimate.weightGiB)}</strong></span>
-              <span><i className="kv" />KV cache <strong>{formatGiB(estimate.kvGiB)}</strong></span>
-              <span><i className="workspace" />Runtime <strong>{formatGiB(estimate.workspaceGiB)}</strong></span>
+              <span><i className="weights" />Weights <strong>{formatGiB(perDeviceWeight)}</strong></span>
+              <span><i className="kv" />KV cache <strong>{formatGiB(perDeviceKv)}</strong></span>
+              <span><i className="workspace" />Runtime <strong>{formatGiB(perDeviceWorkspace)}</strong></span>
             </div>
           </div>
 
           <div className="recommended-stack">
-            <div className="result-section-title"><span>Best cloud fits</span><small>using sample rates</small></div>
+            <div className="result-section-title"><span>Example cloud fits</span><Link href="/hardware">Browse profiles →</Link></div>
             {matches.length > 0 ? matches.map((gpu, index) => (
-              <a className="hardware-match" href={flatkeyComputeUrl(`${model.slug}_${gpu.slug}`)} target="_blank" rel="noreferrer" key={gpu.slug}>
+              <Link className="hardware-match" href={`/hardware/${gpu.slug}`} aria-label={`View the ${gpu.name} GPU fit profile`} key={gpu.slug}>
                 <span className="match-rank">{String(index + 1).padStart(2, "0")}</span>
                 <div><strong>{devices}× {gpu.name}</strong><small>{gpu.vramGb} GB each · {gpu.architecture}</small></div>
                 <div className={`fit-pill ${gpu.verdict === "Tight fit" ? "tight" : ""}`}>{gpu.verdict}</div>
-                <div className="match-price"><strong>${gpu.totalHourly.toFixed(2)}</strong><small>/ hour</small></div>
-              </a>
+                <div className="match-price"><strong>${gpu.totalHourly.toFixed(2)}</strong><small>sample / hour</small></div>
+              </Link>
             )) : <div className="no-fit"><strong>No clean fit in the starter catalogue.</strong><span>Increase GPU count or reduce context and concurrency.</span></div>}
           </div>
+          <p className="result-rate-note">Sample planning rates only—not live Flatkey quotes or availability.</p>
 
           <div className="launch-command">
-            <div><span>Starter command · vLLM</span><code>{command}</code></div>
+            <div><span>Command template · vLLM</span><code>{command}</code></div>
             <button type="button" onClick={copyCommand}>{copied ? "Copied" : "Copy"}</button>
+            <p className="launch-command-note">{commandNote}</p>
           </div>
           <div className="fit-actions">
-            <a className="primary-conversion" href={flatkeyComputeUrl(`${model.slug}_result`)} target="_blank" rel="noreferrer">Find this compute on Flatkey ↗</a>
-            <a href={siteConfig.gpuPricesUrl} target="_blank" rel="noreferrer">Compare the GPU market →</a>
+            <Link href="/hardware">Compare GPU profiles →</Link>
           </div>
         </div>
       </div>
