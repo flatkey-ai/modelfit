@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { CSSProperties } from "react";
 import { FitCalculator } from "@/components/fit-calculator";
 import { estimateMemory, models, quantizations } from "@/lib/data";
-import { flatkeyComputeUrl } from "@/lib/site";
+import { flatkeyWebsiteUrl } from "@/lib/site";
 
 function getQ4Memory(slug: string) {
   const model = models.find((entry) => entry.slug === slug)!;
@@ -18,7 +18,7 @@ export default function Home() {
           <div className="hero-label"><span>01</span><p>Open-model deployment planner</p></div>
           <h1>Will this<br />model <em>fit?</em></h1>
           <p className="hero-intro">Turn model size, quantization, context, and concurrency into a practical GPU plan—before you reserve a machine.</p>
-          <div className="hero-links"><a href={flatkeyComputeUrl("home_hero", "homepage")} target="_blank" rel="sponsored nofollow noreferrer">Open Flatkey Compute <b>↗</b></a><Link href="#calculator">Check a model ↓</Link></div>
+          <div className="hero-links"><a href={flatkeyWebsiteUrl("home_hero")} target="_blank" rel="sponsored nofollow noreferrer">Explore Flatkey GPU Cloud <b>↗</b></a><Link href="#calculator">Check a model ↓</Link></div>
         </div>
         <div className="hero-visual" aria-hidden="true">
           <div className="orbit orbit-a"><span>WEIGHTS</span></div>
