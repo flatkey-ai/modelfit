@@ -251,6 +251,7 @@ export const models: ModelRecord[] = baseModels.map((model) => {
 });
 
 export const modelConfigGeneratedAt = modelConfigDataset.generatedAt;
+export const getModelConfig = (slug: string) => modelConfigDataset.models.find((entry) => entry.slug === slug);
 
 export const hardware: Hardware[] = [
   { slug: "nvidia-t4-16gb", name: "NVIDIA T4", maker: "NVIDIA", vramGb: 16, tier: "Cloud", architecture: "Turing", sampleHourly: 0.2, note: "Budget inference" },

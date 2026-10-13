@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { FitCalculator } from "@/components/fit-calculator";
-import { estimateMemory, getModel, hardware, models, quantizations } from "@/lib/data";
+import { estimateMemory, getModel, getModelConfig, hardware, models, quantizations } from "@/lib/data";
 import { flatkeyComputeUrl } from "@/lib/site";
 
 type PageProps = { params: Promise<{ slug: string }> };
@@ -35,6 +35,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export default async function ModelPage({ params }: PageProps) {
   const model = getModel((await params).slug);
   if (!model) notFound();
+  const modelConfig = getModelConfig(model.slug);
   const q4 = quantizations.find((entry) => entry.id === "q4")!;
   const bf16 = quantizations.find((entry) => entry.id === "bf16")!;
   const q4Estimate = estimateMemory(model, q4, Math.min(8192, model.nativeContext), 1);
@@ -55,6 +56,13 @@ export default async function ModelPage({ params }: PageProps) {
           <div><span>License</span><strong>{model.license}</strong></div>
           <div><span>Q4 · 8K estimate</span><strong>{q4Estimate.subtotalGiB.toFixed(1)} GiB</strong></div>
         </div>
+        {modelConfig && (
+          <div className={`config-evidence ${modelConfig.status}`}>
+            <span>{modelConfig.status === "verified" ? "Verified public config" : "Manifest baseline"}</span>
+            <p>{modelConfig.status === "verified" ? "Architecture values were refreshed from the public model config." : "The public config is gated; calculations use the reviewed manifest fallback."}</p>
+            <a href={modelConfig.sourceUrl} target="_blank" rel="noreferrer">Evidence · {new Intl.DateTimeFormat("en", { dateStyle: "medium", timeZone: "UTC" }).format(new Date(modelConfig.observedAt))} ↗</a>
+          </div>
+        )}
       </section>
 
       <section className="model-planning frame">
