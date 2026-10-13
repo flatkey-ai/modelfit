@@ -1,3 +1,5 @@
+import modelConfigDataset from "@/data/model-configs.json";
+
 export type ModelRecord = {
   slug: string;
   modelId: string;
@@ -51,7 +53,7 @@ export const quantizations: Quantization[] = [
 // KV coefficients use the official model configuration dimensions and the FP16 formula:
 // 2 (K + V) × layers × KV heads × head dimension × 2 bytes × 1,000 / 2^30.
 // Gemma 2 hybrid-cache metadata follows google/gemma_pytorch's alternating local/global layers.
-export const models: ModelRecord[] = [
+const baseModels: ModelRecord[] = [
   {
     slug: "phi-3-mini-128k-instruct",
     modelId: "microsoft/Phi-3-mini-128k-instruct",
@@ -234,6 +236,21 @@ export const models: ModelRecord[] = [
     sourceUrl: "https://huggingface.co/Qwen/Qwen2.5-72B-Instruct",
   },
 ];
+
+const verifiedConfigs = new Map(modelConfigDataset.models.map((entry) => [entry.slug, entry]));
+
+export const models: ModelRecord[] = baseModels.map((model) => {
+  const verified = verifiedConfigs.get(model.slug);
+  if (!verified) return model;
+  return {
+    ...model,
+    nativeContext: verified.nativeContext,
+    kvHeads: verified.kvHeads,
+    kvGiBPer1kTokens: verified.kvGiBPer1kTokens,
+  };
+});
+
+export const modelConfigGeneratedAt = modelConfigDataset.generatedAt;
 
 export const hardware: Hardware[] = [
   { slug: "nvidia-t4-16gb", name: "NVIDIA T4", maker: "NVIDIA", vramGb: 16, tier: "Cloud", architecture: "Turing", sampleHourly: 0.2, note: "Budget inference" },

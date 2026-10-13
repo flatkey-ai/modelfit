@@ -1,0 +1,39 @@
+name: Refresh official model configuration data
+
+on:
+  schedule:
+    - cron: "43 3 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: refresh-model-data
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.14
+      - run: bun install --frozen-lockfile
+      - run: bun run data:refresh
+      - run: bun run test
+      - run: bun run typecheck
+      - run: bun run build
+      - name: Commit verified model snapshot
+        run: |
+          if git diff --quiet -- data/model-configs.json; then
+            echo "No model configuration changes"
+            exit 0
+          fi
+          git config user.name "modelfit-data-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/model-configs.json
+          git commit -m "data: refresh official model configs [skip ci]"
+          git push

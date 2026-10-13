@@ -1,0 +1,13 @@
+[
+  { "slug": "phi-3-mini-128k-instruct", "modelId": "microsoft/Phi-3-mini-128k-instruct", "nativeContext": 131072, "layers": 32, "kvHeads": 32, "headDimension": 96 },
+  { "slug": "mistral-7b-instruct-v03", "modelId": "mistralai/Mistral-7B-Instruct-v0.3", "nativeContext": 32768, "layers": 32, "kvHeads": 8, "headDimension": 128 },
+  { "slug": "qwen25-7b-instruct", "modelId": "Qwen/Qwen2.5-7B-Instruct", "nativeContext": 32768, "layers": 28, "kvHeads": 4, "headDimension": 128 },
+  { "slug": "llama-31-8b-instruct", "modelId": "meta-llama/Llama-3.1-8B-Instruct", "nativeContext": 131072, "layers": 32, "kvHeads": 8, "headDimension": 128 },
+  { "slug": "gemma-2-9b-it", "modelId": "google/gemma-2-9b-it", "nativeContext": 8192, "layers": 42, "kvHeads": 8, "headDimension": 256 },
+  { "slug": "qwen25-14b-instruct", "modelId": "Qwen/Qwen2.5-14B-Instruct", "nativeContext": 32768, "layers": 48, "kvHeads": 8, "headDimension": 128 },
+  { "slug": "gemma-2-27b-it", "modelId": "google/gemma-2-27b-it", "nativeContext": 8192, "layers": 46, "kvHeads": 16, "headDimension": 128 },
+  { "slug": "qwen25-32b-instruct", "modelId": "Qwen/Qwen2.5-32B-Instruct", "nativeContext": 32768, "layers": 64, "kvHeads": 8, "headDimension": 128 },
+  { "slug": "mixtral-8x7b-instruct", "modelId": "mistralai/Mixtral-8x7B-Instruct-v0.1", "nativeContext": 32768, "layers": 32, "kvHeads": 8, "headDimension": 128 },
+  { "slug": "llama-31-70b-instruct", "modelId": "meta-llama/Llama-3.1-70B-Instruct", "nativeContext": 131072, "layers": 80, "kvHeads": 8, "headDimension": 128 },
+  { "slug": "qwen25-72b-instruct", "modelId": "Qwen/Qwen2.5-72B-Instruct", "nativeContext": 32768, "layers": 80, "kvHeads": 8, "headDimension": 128 }
+]

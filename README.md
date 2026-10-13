@@ -1,4 +1,4 @@
-# GPU Fit
+# ModelFit
 
 Independent model-to-hardware planning site. The launch UI is branded **ModelFit** through `NEXT_PUBLIC_SITE_NAME`; the final brand and domain are environment-driven.
 
@@ -16,6 +16,7 @@ The product direction is inspired by RunMyLLM’s model/hardware decision flow, 
 - Published formula and limitations page
 - Per-page canonical metadata, structured data, sitemap, robots policy, standalone Next.js build, and Docker image
 - One result-level Flatkey Compute CTA on eligible calculator, model-fit, and hardware-fit pages, with model and hardware UTM attribution
+- Daily model-configuration refreshes from official Hugging Face repositories
 
 ## Local development
 
@@ -36,6 +37,19 @@ PORT=3001 node .next/standalone/server.js
 
 Or build and run the included Dockerfile with `-e PORT=3001 -p 3001:3001`.
 
+## Refresh model data
+
+```bash
+bun run data:refresh
+bun run test
+bun run typecheck
+bun run build
+```
+
+`data/model-configs.json` is a versioned, auditable snapshot. Public model configs update automatically each day; gated or temporarily unavailable configs retain their last-known-good values. Collector and validation code lives under `scripts/`.
+
+See [DATA.md](DATA.md) for the data contract, formula, and fallback policy.
+
 ## Configuration
 
 Copy `.env.example` to `.env.local` and set:
@@ -47,3 +61,7 @@ Copy `.env.example` to `.env.local` and set:
 ## Estimation scope
 
 The current engine estimates inference memory. Results are labeled calculated estimates and are not benchmark guarantees. Measured runtime profiles should be stored separately with exact model revision, quantization, runtime version, GPU SKU/form factor, context, concurrency, and launch flags.
+
+## License
+
+MIT
