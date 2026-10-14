@@ -9,6 +9,8 @@ export const metadata: Metadata = {
   alternates: { canonical: absoluteUrl("/blog") },
 };
 
+export const revalidate = 0;
+
 export default async function BlogPage() {
   const posts = await fetchBlogPosts();
 
