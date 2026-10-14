@@ -1,13 +1,20 @@
 import Link from "next/link";
-import type { CSSProperties } from "react";
 import { FitCalculator } from "@/components/fit-calculator";
-import { estimateMemory, models, quantizations } from "@/lib/data";
+import { estimateMemory, hardware, models, quantizations } from "@/lib/data";
 import { flatkeyWebsiteUrl } from "@/lib/site";
 
 function getQ4Memory(slug: string) {
   const model = models.find((entry) => entry.slug === slug)!;
   const q4 = quantizations.find((entry) => entry.id === "q4")!;
   return estimateMemory(model, q4, Math.min(model.nativeContext, 8192), 1).subtotalGiB;
+}
+
+function formatContext(tokens: number) {
+  return tokens >= 1024 ? `${Math.round(tokens / 1024)}K` : tokens.toLocaleString("en-US");
+}
+
+function getRecommendedGpu(memoryGiB: number) {
+  return hardware.find((gpu) => memoryGiB <= gpu.vramGb * 0.85)?.name ?? "Multi-GPU";
 }
 
 export default function Home() {
@@ -49,16 +56,27 @@ export default function Home() {
             <div><span className="section-index">03 / Model index</span><h2>Choose the model.<br />We’ll map the hardware.</h2></div>
             <div className="section-intro-link"><p>Curated model cards keep parameter counts, context limits, architecture notes, and source links separate from the calculator itself.</p><Link href="/models">Explore the full model directory →</Link></div>
           </div>
-          <div className="model-list">
+          <div className="model-list" aria-label="Model memory planning estimates">
+            <div className="model-list-head">
+              <span aria-hidden="true">#</span>
+              <span>Model</span>
+              <span>Parameters</span>
+              <span>Native context</span>
+              <span>Q4 · 8K estimate</span>
+              <span>Recommended GPU</span>
+              <span aria-hidden="true">View</span>
+            </div>
             {models.map((model, index) => {
               const q4Memory = getQ4Memory(model.slug);
+              const recommendedGpu = getRecommendedGpu(q4Memory);
               return (
                 <Link className="model-row" href={`/models/${model.slug}`} key={model.slug}>
                   <span className="model-row-index">{String(index + 1).padStart(2, "0")}</span>
                   <div className="model-row-name"><strong>{model.name}</strong><small>{model.maker} · {model.family}</small></div>
-                  <div className="parameter-disc"><span style={{ "--disc": `${Math.max(15, Math.min(100, model.parametersB))}%` } as CSSProperties} /></div>
-                  <div className="model-row-stat"><span>Parameters</span><strong>{model.parametersB}B</strong></div>
-                  <div className="model-row-stat"><span>Q4 · 8K estimate</span><strong>~{q4Memory.toFixed(0)} GiB</strong></div>
+                  <div className="model-row-stat model-row-parameters"><strong>{model.parametersB}B</strong></div>
+                  <div className="model-row-stat model-row-context"><strong>{formatContext(model.nativeContext)}</strong></div>
+                  <div className="model-row-stat model-row-memory" data-label="Q4 · 8K"><strong>~{q4Memory.toFixed(0)} GiB</strong></div>
+                  <div className="model-row-stat model-row-gpu"><strong>{recommendedGpu}</strong></div>
                   <span className="model-row-arrow">↗</span>
                 </Link>
               );

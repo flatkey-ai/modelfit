@@ -177,19 +177,19 @@ h1, h2, h3 { text-wrap: balance; }
 .inverse .section-index { color: var(--orange-light); }
 .inverse > p { color: #aaaabd; }
 .model-list { border-top: 1px solid rgba(255,255,255,.3); }
-.model-row { min-height: 91px; display: grid; grid-template-columns: 45px 1.25fr .6fr .6fr .75fr 25px; gap: 20px; align-items: center; border-bottom: 1px solid rgba(255,255,255,.15); transition: padding .15s, background .15s; }
-.model-row:hover { padding-inline: 15px; background: var(--orange); color: var(--navy); }
+.model-list-head, .model-row { display: grid; grid-template-columns: 42px minmax(250px, 1.4fr) .55fr .65fr .75fr .9fr 25px; gap: 18px; align-items: center; }
+.model-list-head { min-height: 39px; border-bottom: 1px solid rgba(255,255,255,.24); color: #a6a6b9; font-family: var(--font-mono); font-size: 7px; letter-spacing: .06em; text-transform: uppercase; }
+.model-list-head span:last-child { justify-self: end; }
+.model-row { min-height: 78px; border-bottom: 1px solid rgba(255,255,255,.15); transition: background .15s, box-shadow .15s, transform .15s; }
+.model-row:hover { background: var(--orange); color: var(--navy); box-shadow: inset 4px 0 0 var(--orange-light); transform: translateX(4px); }
 .model-row-index { color: #77778f; font-family: var(--font-mono); font-size: 9px; }
 .model-row:hover .model-row-index { color: rgba(25,26,58,.55); }
-.model-row-name strong { display: block; font-size: 17px; }
+.model-row-name { min-width: 0; }
+.model-row-name strong { display: block; overflow: hidden; font-size: 15px; text-overflow: ellipsis; white-space: nowrap; }
 .model-row-name small { display: block; margin-top: 4px; color: #9292a8; font-size: 9px; }
 .model-row:hover .model-row-name small { color: rgba(25,26,58,.65); }
-.parameter-disc { display: flex; align-items: center; }
-.parameter-disc span { --disc: 50%; display: block; width: clamp(18px, var(--disc), 52px); max-width: 52px; aspect-ratio: 1; border: 1px solid currentColor; border-radius: 50%; background-image: radial-gradient(circle at center, transparent 40%, currentColor 41% 44%, transparent 45%); }
-.model-row-stat span, .model-row-stat strong { display: block; font-family: var(--font-mono); }
-.model-row-stat span { margin-bottom: 6px; color: #85859d; font-size: 7px; text-transform: uppercase; }
-.model-row:hover .model-row-stat span { color: rgba(25,26,58,.55); }
-.model-row-stat strong { font-size: 11px; }
+.model-row-stat strong { display: block; font-family: var(--font-mono); font-size: 10px; font-weight: 500; }
+.model-row-gpu strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .model-row-arrow { justify-self: end; color: var(--orange); font-size: 17px; }
 .model-row:hover .model-row-arrow { color: var(--navy); }
 
@@ -509,8 +509,8 @@ h1, h2, h3 { text-wrap: balance; }
   .hero-visual { width: 100%; }
   .fit-body { grid-template-columns: 1fr; }
   .fit-form { border-right: 0; border-bottom: 1px solid var(--navy); }
-  .model-row { grid-template-columns: 40px 1.2fr .5fr .65fr 25px; }
-  .parameter-disc { display: none; }
+  .model-list-head, .model-row { grid-template-columns: 36px minmax(210px, 1.3fr) .5fr .65fr .85fr 22px; gap: 14px; }
+  .model-list-head span:nth-child(4), .model-row-context { display: none; }
   .model-detail-title { grid-template-columns: 1fr .35fr; gap: 50px; }
   .directory-title, .guide-hero-grid { grid-template-columns: 1fr .65fr; gap: 55px; }
   .hardware-card-grid { grid-template-columns: repeat(2, 1fr); }
@@ -548,8 +548,13 @@ h1, h2, h3 { text-wrap: balance; }
   .fit-actions { align-items: start; flex-direction: column; }
   .fit-conversion { grid-template-columns: 1fr; }
   .fit-conversion .primary-conversion { width: 100%; }
-  .model-row { padding-block: 15px; grid-template-columns: 30px 1fr auto 18px; gap: 10px; }
-  .model-row-stat:last-of-type { display: none; }
+  .models-section { padding-block: 82px; }
+  .model-list-head { display: none; }
+  .model-row { min-height: 78px; padding-block: 12px; grid-template-columns: 28px minmax(0, 1fr) auto 18px; gap: 10px; }
+  .model-row:hover { transform: none; }
+  .model-row-parameters, .model-row-context, .model-row-gpu { display: none; }
+  .model-row-memory::before { content: attr(data-label); display: block; margin-bottom: 4px; color: #85859d; font-family: var(--font-mono); font-size: 6px; text-transform: uppercase; }
+  .model-row:hover .model-row-memory::before { color: rgba(25,26,58,.55); }
   .model-row-name strong { font-size: 14px; }
   .decision-grid { grid-template-columns: 1fr; }
   .decision-grid article { min-height: 320px; }
