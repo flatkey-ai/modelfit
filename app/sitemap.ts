@@ -3,6 +3,8 @@ import { hardware, models } from "@/lib/data";
 import { fetchBlogPosts } from "@/lib/blog";
 import { absoluteUrl } from "@/lib/site";
 
+export const dynamic = "force-dynamic";
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticRoutes: MetadataRoute.Sitemap = [
     { route: "", priority: 1, changeFrequency: "weekly" as const },
