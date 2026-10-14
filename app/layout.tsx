@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { SiteAnalytics } from "@/components/site-analytics";
 import { absoluteUrl, siteConfig } from "@/lib/site";
 import "./globals.css";
 
@@ -29,9 +30,31 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
+  const siteJsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": absoluteUrl("/#organization"),
+        name: siteConfig.name,
+        url: absoluteUrl("/"),
+        logo: absoluteUrl("/icon.svg"),
+      },
+      {
+        "@type": "WebSite",
+        "@id": absoluteUrl("/#website"),
+        name: siteConfig.name,
+        url: absoluteUrl("/"),
+        description: siteConfig.description,
+        inLanguage: "en",
+        publisher: { "@id": absoluteUrl("/#organization") },
+      },
+    ],
+  };
   return (
     <html lang="en" data-scroll-behavior="smooth">
       <body>
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(siteJsonLd).replace(/</g, "\\u003c") }} />
         <header className="site-header">
           <div className="frame header-grid">
             <Link className="brand" href="/" aria-label={`${siteConfig.name} home`}><span className="logo-orbit"><i /><b /></span><span>{siteConfig.name}</span></Link>
@@ -48,6 +71,7 @@ export default function RootLayout({ children }: Readonly<{ children: ReactNode 
           </div>
           <div className="frame footer-note"><span>© {new Date().getFullYear()} {siteConfig.name}</span><span>Estimates are planning guidance, not benchmark guarantees.</span></div>
         </footer>
+        <SiteAnalytics />
       </body>
     </html>
   );

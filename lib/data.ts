@@ -1,5 +1,7 @@
 import modelConfigDataset from "@/data/model-configs.json";
 
+export const modelFitFormulaVersion = "1.0.0";
+
 export type ModelRecord = {
   slug: string;
   modelId: string;

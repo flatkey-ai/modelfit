@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { estimateMemory, estimatePerDeviceMemory, hardware, models, quantizations } from "@/lib/data";
+import { estimateMemory, estimatePerDeviceMemory, hardware, modelConfigGeneratedAt, modelFitFormulaVersion, models, quantizations } from "@/lib/data";
+import { trackSiteEvent } from "@/components/site-analytics";
 import { flatkeyComputeUrl } from "@/lib/site";
 
 type FitCalculatorProps = {
@@ -69,6 +70,7 @@ export function FitCalculator({ initialModelSlug = "llama-31-8b-instruct", compa
 
   async function copyCommand() {
     await navigator.clipboard.writeText(command);
+    trackSiteEvent("launch_command_copied", { model: model.slug, quantization: quantizationId, context, concurrency, devices, kv_precision: kvPrecision });
     setCopied(true);
     window.setTimeout(() => setCopied(false), 1400);
   }
@@ -77,7 +79,7 @@ export function FitCalculator({ initialModelSlug = "llama-31-8b-instruct", compa
     <div className={`fit-tool ${compact ? "compact" : ""}`}>
       <div className="fit-tool-head">
         <div><span className="micro-label">Deployment worksheet</span><strong>MODEL / GPU FIT</strong></div>
-        <span className="estimate-badge"><i /> Calculated estimate</span>
+        <span className="estimate-badge"><i /> Calculated estimate · v{modelFitFormulaVersion}</span>
       </div>
       <div className="fit-body">
         <form className="fit-form" onSubmit={(event) => event.preventDefault()}>
@@ -152,7 +154,7 @@ export function FitCalculator({ initialModelSlug = "llama-31-8b-instruct", compa
               </Link>
             )) : <div className="no-fit"><strong>No clean fit in the starter catalogue.</strong><span>Increase GPU count or reduce context and concurrency.</span></div>}
           </div>
-          <p className="result-rate-note">Sample planning rates only—not live Flatkey quotes or availability.</p>
+          <p className="result-rate-note">Formula v{modelFitFormulaVersion} · official model configurations checked {new Intl.DateTimeFormat("en", { dateStyle: "medium", timeZone: "UTC" }).format(new Date(modelConfigGeneratedAt))}. Sample planning rates only—not live Flatkey quotes or availability.</p>
 
           <div className="launch-command">
             <div><span>Command template · vLLM</span><code>{command}</code></div>

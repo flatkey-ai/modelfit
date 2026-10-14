@@ -12,6 +12,7 @@
     "start": "next start",
     "test": "bun test",
     "data:refresh": "node scripts/refresh-model-configs.mjs",
+    "seo:audit": "node scripts/seo-audit.mjs",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

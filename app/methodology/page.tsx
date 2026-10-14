@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { modelConfigGeneratedAt } from "@/lib/data";
+import { modelConfigGeneratedAt, modelFitFormulaVersion } from "@/lib/data";
 
 export const metadata: Metadata = {
   title: "Memory estimation methodology",
@@ -15,7 +15,7 @@ export default function MethodologyPage() {
   return (
     <main className="method-page frame">
       <div className="crumbs"><Link href="/">Home</Link><span>/</span><strong>Methodology</strong></div>
-      <header><span className="section-index">Calculation notes / v1 · configs checked {refreshedAt}</span><h1>Useful estimates<br /><em>show their work.</em></h1><p>ModelFit separates the three memory buckets that dominate inference planning, then applies explicit headroom instead of pretending the board’s advertised capacity is fully usable.</p></header>
+      <header><span className="section-index">Formula v{modelFitFormulaVersion} · configs checked {refreshedAt}</span><h1>Useful estimates<br /><em>show their work.</em></h1><p>ModelFit separates the three memory buckets that dominate inference planning, then applies explicit headroom instead of pretending the board’s advertised capacity is fully usable.</p></header>
       <div className="method-grid">
         <aside><strong>Contents</strong><a href="#weights">01 · Model weights</a><a href="#cache">02 · KV cache</a><a href="#runtime">03 · Runtime</a><a href="#fit">04 · Fit verdict</a><a href="#limits">05 · Limits</a></aside>
         <div className="method-content">

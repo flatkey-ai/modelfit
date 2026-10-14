@@ -735,3 +735,10 @@ h1, h2, h3 { text-wrap: balance; }
   .blog-article-layout aside { position: static; }
   .blog-article-next { align-items: stretch; flex-direction: column; }
 }
+.analytics-consent { position: fixed; z-index: 50; right: 20px; bottom: 20px; width: min(440px, calc(100vw - 40px)); padding: 16px; border: 1px solid var(--ink, #171733); background: var(--paper, #f5f0e6); color: var(--ink, #171733); box-shadow: 8px 8px 0 rgba(23, 23, 51, .18); display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.analytics-consent p { margin: 0; display: grid; gap: 4px; font-size: 12px; line-height: 1.4; }
+.analytics-consent p strong { font-size: 13px; }
+.analytics-consent div { display: flex; gap: 8px; flex: 0 0 auto; }
+.analytics-consent button { min-height: 36px; padding: 0 12px; border: 1px solid currentColor; background: transparent; color: inherit; font: inherit; font-size: 11px; cursor: pointer; }
+.analytics-consent .consent-accept { background: var(--ink, #171733); color: var(--paper, #f5f0e6); }
+@media (max-width: 640px) { .analytics-consent { align-items: stretch; flex-direction: column; } .analytics-consent div { justify-content: flex-end; } }
