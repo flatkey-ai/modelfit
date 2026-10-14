@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { blogDate, blogExcerpt, fetchBlogPost } from "@/lib/blog";
+import { blogDate, blogExcerpt, fetchBlogPost, normalizeBlogBodyHtml } from "@/lib/blog";
 import { absoluteUrl, siteConfig } from "@/lib/site";
 
 type PageProps = { params: Promise<{ slug: string }> };
@@ -54,7 +54,7 @@ export default async function BlogArticlePage({ params }: PageProps) {
       {post.cover_image_url ? <div className="frame blog-cover"><img src={post.cover_image_url} alt="" /></div> : null}
       <div className="frame blog-article-layout">
         <aside><strong>ModelFit field notes</strong><span>Technical planning guidance</span><span>Sources and assumptions belong in every article.</span></aside>
-        <article className="cms-prose" dangerouslySetInnerHTML={{ __html: post.html_content }} />
+        <article className="cms-prose" dangerouslySetInnerHTML={{ __html: normalizeBlogBodyHtml(post.html_content) }} />
       </div>
       <section className="frame blog-article-next"><div><span>Continue planning</span><h2>Test the model against real GPU memory.</h2></div><Link href="/calculator">Open the VRAM calculator →</Link></section>
     </main>

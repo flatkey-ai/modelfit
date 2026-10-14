@@ -62,6 +62,12 @@ export function blogExcerpt(post: BlogPost, maxLength = 190) {
   return text.length > maxLength ? `${text.slice(0, maxLength).trimEnd()}…` : text;
 }
 
+export function normalizeBlogBodyHtml(html: string) {
+  return html
+    .replace(/<h1(\s[^>]*)?>/gi, "<h2$1>")
+    .replace(/<\/h1>/gi, "</h2>");
+}
+
 export function blogDate(value: string | null) {
   if (!value) return "Unscheduled";
   return new Intl.DateTimeFormat("en", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" }).format(new Date(value));
