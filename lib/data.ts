@@ -278,17 +278,34 @@ export function estimateMemory(
   kvPrecision: "fp16" | "fp8" = "fp16",
 ) {
   const weightGiB = (model.parametersB * 1_000_000_000 * (quantization.bits / 8)) / 1_073_741_824 * quantization.overhead;
+  const kvGiB = estimateKvCache(model, context, concurrency, kvPrecision);
+  const workspaceGiB = Math.max(2, weightGiB * 0.1);
+  const subtotalGiB = weightGiB + kvGiB + workspaceGiB;
+  const recommendedGiB = subtotalGiB / 0.85;
+  return { weightGiB, kvGiB, workspaceGiB, subtotalGiB, recommendedGiB };
+}
+
+export function estimateKvCache(
+  model: ModelRecord,
+  context: number,
+  concurrency: number,
+  kvPrecision: "fp16" | "fp8" = "fp16",
+) {
   const kvMultiplier = kvPrecision === "fp8" ? 0.5 : 1;
   const slidingFraction = model.slidingWindowLayerFraction ?? 0;
   const slidingTokens = model.slidingWindowTokens
     ? Math.min(context, model.slidingWindowTokens)
     : context;
   const cacheTokenEquivalents = context * (1 - slidingFraction) + slidingTokens * slidingFraction;
-  const kvGiB = model.kvGiBPer1kTokens * (cacheTokenEquivalents / 1000) * concurrency * kvMultiplier;
-  const workspaceGiB = Math.max(2, weightGiB * 0.1);
-  const subtotalGiB = weightGiB + kvGiB + workspaceGiB;
-  const recommendedGiB = subtotalGiB / 0.85;
-  return { weightGiB, kvGiB, workspaceGiB, subtotalGiB, recommendedGiB };
+  return model.kvGiBPer1kTokens * (cacheTokenEquivalents / 1000) * concurrency * kvMultiplier;
+}
+
+export function estimateCustomModelWeightMemory(parametersB: number, quantization: Quantization) {
+  const rawGiB = (parametersB * 1_000_000_000 * (quantization.bits / 8)) / 1_073_741_824;
+  const packedGiB = rawGiB * quantization.overhead;
+  const workspaceGiB = Math.max(2, packedGiB * 0.1);
+  const recommendedGiB = (packedGiB + workspaceGiB) / 0.85;
+  return { rawGiB, packedGiB, workspaceGiB, recommendedGiB };
 }
 
 export function estimatePerDeviceMemory(
