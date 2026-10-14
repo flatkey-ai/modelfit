@@ -22,7 +22,6 @@ export default function CalculatorsPage() {
     <main>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema).replace(/</g, "\\u003c") }} />
       <section className="directory-hero frame calculator-directory-hero">
-        <div className="crumbs"><Link href="/">Home</Link><span>/</span><strong>Calculators</strong></div>
         <div className="directory-title"><div><span className="section-index">Four auditable tools</span><h1>LLM GPU<br /><em>calculators.</em></h1></div><p>Start with the narrowest question you can answer reliably. Each tool exposes its formula, omits unknowns instead of inventing them, and links back to the full deployment worksheet.</p></div>
       </section>
       <section className="frame calculator-card-list">{tools.map((tool) => <Link href={tool.href} className="calculator-card" key={tool.href}><span>{tool.index}</span><div><small>{tool.label}</small><h2>{tool.title}</h2><p>{tool.copy}</p><ul>{tool.tags.map((tag) => <li key={tag}>{tag}</li>)}</ul></div><b>Open calculator ↗</b></Link>)}</section>

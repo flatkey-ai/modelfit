@@ -41,7 +41,6 @@ export default function ModelsIndexPage() {
     <main className="directory-page">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(itemList) }} />
       <section className="directory-hero frame">
-        <div className="crumbs"><Link href="/">Home</Link><span>/</span><strong>Models</strong></div>
         <div className="directory-title">
           <div><span className="directory-stat-badge"><b>{models.length}</b> model profiles</span><h1>LLM VRAM<br /><em>requirements.</em></h1></div>
           <div className="directory-lede"><p>Start with the model, not the GPU. Compare parameter count, native context, architecture, and a consistent 4-bit memory estimate before tuning the workload.</p><Link href="/calculator">Open the interactive calculator →</Link></div>

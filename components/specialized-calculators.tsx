@@ -12,6 +12,7 @@ import {
   quantizations,
 } from "@/lib/data";
 import { flatkeyComputeUrl } from "@/lib/site";
+import { StyledSelect } from "@/components/styled-select";
 
 const contexts = [2048, 4096, 8192, 16384, 32768, 65536, 131072];
 const gpuCounts = [1, 2, 4, 8];
@@ -31,7 +32,7 @@ function CalculatorShell({ label, title, children, result }: { label: string; ti
 }
 
 function ModelSelect({ value, onChange }: { value: string; onChange: (value: string) => void }) {
-  return <label><span>Model architecture</span><select value={value} onChange={(event) => onChange(event.target.value)}>{models.map((model) => <option key={model.slug} value={model.slug}>{model.name}</option>)}</select></label>;
+  return <div className="select-field"><span>Model architecture</span><StyledSelect ariaLabel="Model architecture" value={value} options={models.map((model) => ({ value: model.slug, label: model.name }))} onChange={onChange} /></div>;
 }
 
 function ResultCta({ source }: { source: string }) {
@@ -59,8 +60,8 @@ export function KvCacheCalculator() {
       <ResultCta source="kv_cache_result" />
     </>}>
       <ModelSelect value={modelSlug} onChange={(value) => { setModelSlug(value); const next = models.find((entry) => entry.slug === value); if (next && context > next.nativeContext) setContext(next.nativeContext); }} />
-      <div className="calculator-control-pair"><label><span>Context per sequence</span><select value={context} onChange={(event) => setContext(Number(event.target.value))}>{availableContexts.map((entry) => <option key={entry} value={entry}>{formatTokens(entry)} tokens</option>)}</select></label><label><span>Active sequences</span><select value={concurrency} onChange={(event) => setConcurrency(Number(event.target.value))}>{[1, 2, 4, 8, 16, 32].map((entry) => <option key={entry} value={entry}>{entry}</option>)}</select></label></div>
-      <div className="calculator-control-pair"><label><span>Tensor-parallel GPUs</span><select value={devices} onChange={(event) => setDevices(Number(event.target.value))}>{gpuCounts.map((entry) => <option key={entry} value={entry}>{entry} GPU{entry === 1 ? "" : "s"}</option>)}</select></label><label><span>KV precision</span><select value={precision} onChange={(event) => setPrecision(event.target.value as "fp16" | "fp8")}><option value="fp16">FP16 / BF16</option><option value="fp8">FP8</option></select></label></div>
+      <div className="calculator-control-pair"><div className="select-field"><span>Context per sequence</span><StyledSelect ariaLabel="Context per sequence" value={String(context)} options={availableContexts.map((entry) => ({ value: String(entry), label: `${formatTokens(entry)} tokens` }))} onChange={(value) => setContext(Number(value))} /></div><div className="select-field"><span>Active sequences</span><StyledSelect ariaLabel="Active sequences" value={String(concurrency)} options={[1, 2, 4, 8, 16, 32].map((entry) => ({ value: String(entry), label: String(entry) }))} onChange={(value) => setConcurrency(Number(value))} /></div></div>
+      <div className="calculator-control-pair"><div className="select-field"><span>Tensor-parallel GPUs</span><StyledSelect ariaLabel="Tensor-parallel GPUs" value={String(devices)} options={gpuCounts.map((entry) => ({ value: String(entry), label: `${entry} GPU${entry === 1 ? "" : "s"}` }))} onChange={(value) => setDevices(Number(value))} /></div><div className="select-field"><span>KV precision</span><StyledSelect ariaLabel="KV precision" value={precision} options={[{ value: "fp16", label: "FP16 / BF16" }, { value: "fp8", label: "FP8" }]} onChange={(value) => setPrecision(value as "fp16" | "fp8")} /></div></div>
     </CalculatorShell>
   );
 }
@@ -91,9 +92,9 @@ export function MultiGpuCalculator() {
       <ResultCta source="multi_gpu_result" />
     </>}>
       <ModelSelect value={modelSlug} onChange={(value) => { setModelSlug(value); const next = models.find((entry) => entry.slug === value); if (next && context > next.nativeContext) setContext(next.nativeContext); }} />
-      <div className="calculator-control-pair"><label><span>Weight format</span><select value={quantizationId} onChange={(event) => setQuantizationId(event.target.value)}>{quantizations.map((entry) => <option key={entry.id} value={entry.id}>{entry.label}</option>)}</select></label><label><span>GPU profile</span><select value={gpuSlug} onChange={(event) => setGpuSlug(event.target.value)}>{hardware.map((entry) => <option key={entry.slug} value={entry.slug}>{entry.name} · {entry.vramGb} GB</option>)}</select></label></div>
-      <div className="calculator-control-pair"><label><span>Context per sequence</span><select value={context} onChange={(event) => setContext(Number(event.target.value))}>{contexts.filter((entry) => entry <= model.nativeContext).map((entry) => <option key={entry} value={entry}>{formatTokens(entry)} tokens</option>)}</select></label><label><span>Active sequences</span><select value={concurrency} onChange={(event) => setConcurrency(Number(event.target.value))}>{[1, 2, 4, 8].map((entry) => <option key={entry} value={entry}>{entry}</option>)}</select></label></div>
-      <label><span>KV precision</span><select value={precision} onChange={(event) => setPrecision(event.target.value as "fp16" | "fp8")}><option value="fp16">FP16 / BF16</option><option value="fp8">FP8</option></select></label>
+      <div className="calculator-control-pair"><div className="select-field"><span>Weight format</span><StyledSelect ariaLabel="Weight format" value={quantizationId} options={quantizations.map((entry) => ({ value: entry.id, label: entry.label }))} onChange={setQuantizationId} /></div><div className="select-field"><span>GPU profile</span><StyledSelect ariaLabel="GPU profile" value={gpuSlug} options={hardware.map((entry) => ({ value: entry.slug, label: `${entry.name} · ${entry.vramGb} GB` }))} onChange={setGpuSlug} /></div></div>
+      <div className="calculator-control-pair"><div className="select-field"><span>Context per sequence</span><StyledSelect ariaLabel="Context per sequence" value={String(context)} options={contexts.filter((entry) => entry <= model.nativeContext).map((entry) => ({ value: String(entry), label: `${formatTokens(entry)} tokens` }))} onChange={(value) => setContext(Number(value))} /></div><div className="select-field"><span>Active sequences</span><StyledSelect ariaLabel="Active sequences" value={String(concurrency)} options={[1, 2, 4, 8].map((entry) => ({ value: String(entry), label: String(entry) }))} onChange={(value) => setConcurrency(Number(value))} /></div></div>
+      <div className="select-field"><span>KV precision</span><StyledSelect ariaLabel="KV precision" value={precision} options={[{ value: "fp16", label: "FP16 / BF16" }, { value: "fp8", label: "FP8" }]} onChange={(value) => setPrecision(value as "fp16" | "fp8")} /></div>
     </CalculatorShell>
   );
 }
@@ -112,7 +113,7 @@ export function ModelMemoryCalculator() {
       <ResultCta source="model_memory_result" />
     </>}>
       <label><span>Parameter count (billions)</span><input type="number" min="0.1" max="2000" step="0.1" value={parametersB} onChange={(event) => setParametersB(Math.max(.1, Number(event.target.value) || .1))} /></label>
-      <label><span>Weight format</span><select value={quantizationId} onChange={(event) => setQuantizationId(event.target.value)}>{quantizations.map((entry) => <option key={entry.id} value={entry.id}>{entry.label} · {entry.bits}-bit</option>)}</select></label>
+      <div className="select-field"><span>Weight format</span><StyledSelect ariaLabel="Weight format" value={quantizationId} options={quantizations.map((entry) => ({ value: entry.id, label: `${entry.label} · ${entry.bits}-bit` }))} onChange={setQuantizationId} /></div>
       <div className="calculator-formula"><span>Formula</span><code>parameters × bits ÷ 8 × format overhead</code><p>{quantization.label} currently uses a {quantization.overhead.toFixed(2)}× packing coefficient.</p></div>
     </CalculatorShell>
   );

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { estimateMemory, estimatePerDeviceMemory, hardware, modelConfigGeneratedAt, modelFitFormulaVersion, models, quantizations } from "@/lib/data";
 import { trackSiteEvent } from "@/components/site-analytics";
+import { StyledSelect } from "@/components/styled-select";
 import { flatkeyComputeUrl } from "@/lib/site";
 
 type FitCalculatorProps = {
@@ -87,23 +88,21 @@ export function FitCalculator({ initialModelSlug = "llama-31-8b-instruct", compa
             <span className="step-number">01</span>
             <div className="form-section-body">
               <label htmlFor="model">Model</label>
-              <select id="model" value={modelSlug} onChange={(event) => {
-                const nextModel = models.find((entry) => entry.slug === event.target.value);
-                setModelSlug(event.target.value);
+              <StyledSelect id="model" ariaLabel="Model" value={modelSlug} options={models.map((entry) => ({ value: entry.slug, label: `${entry.name} · ${entry.parametersB}B` }))} onChange={(value) => {
+                const nextModel = models.find((entry) => entry.slug === value);
+                setModelSlug(value);
                 if (nextModel && context > nextModel.nativeContext) setContext(nextModel.nativeContext);
-              }}>
-                {models.map((entry) => <option key={entry.slug} value={entry.slug}>{entry.name} · {entry.parametersB}B</option>)}
-              </select>
+              }} />
               <div className="model-meta"><span>{model.maker}</span><span>{model.architecture}</span><Link href={`/models/${model.slug}`}>Details ↗</Link></div>
             </div>
           </div>
           <div className="form-section">
             <span className="step-number">02</span>
             <div className="form-section-body two-column-controls">
-              <label><span>Weight format</span><select value={quantizationId} onChange={(event) => setQuantizationId(event.target.value)}>{quantizations.map((entry) => <option key={entry.id} value={entry.id}>{entry.label}</option>)}</select></label>
-              <label><span>Context</span><select value={context} onChange={(event) => setContext(Number(event.target.value))}>{availableContexts.map((entry) => <option key={entry} value={entry}>{formatContext(entry)} tokens</option>)}</select></label>
-              <label><span>Concurrent sequences</span><select value={concurrency} onChange={(event) => setConcurrency(Number(event.target.value))}>{[1, 2, 4, 8].map((entry) => <option key={entry} value={entry}>{entry}</option>)}</select></label>
-              <label><span>GPU count</span><select value={devices} onChange={(event) => setDevices(Number(event.target.value))}>{[1, 2, 4, 8].map((entry) => <option key={entry} value={entry}>{entry} GPU{entry > 1 ? "s" : ""}</option>)}</select></label>
+              <div className="select-field"><span>Weight format</span><StyledSelect ariaLabel="Weight format" value={quantizationId} options={quantizations.map((entry) => ({ value: entry.id, label: entry.label }))} onChange={setQuantizationId} /></div>
+              <div className="select-field"><span>Context</span><StyledSelect ariaLabel="Context" value={String(context)} options={availableContexts.map((entry) => ({ value: String(entry), label: `${formatContext(entry)} tokens` }))} onChange={(value) => setContext(Number(value))} /></div>
+              <div className="select-field"><span>Concurrent sequences</span><StyledSelect ariaLabel="Concurrent sequences" value={String(concurrency)} options={[1, 2, 4, 8].map((entry) => ({ value: String(entry), label: String(entry) }))} onChange={(value) => setConcurrency(Number(value))} /></div>
+              <div className="select-field"><span>GPU count</span><StyledSelect ariaLabel="GPU count" value={String(devices)} options={[1, 2, 4, 8].map((entry) => ({ value: String(entry), label: `${entry} GPU${entry > 1 ? "s" : ""}` }))} onChange={(value) => setDevices(Number(value))} /></div>
             </div>
           </div>
           <div className="form-section small-section">

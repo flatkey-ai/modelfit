@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { modelConfigGeneratedAt, modelFitFormulaVersion } from "@/lib/data";
 
 export const metadata: Metadata = {
@@ -14,7 +13,6 @@ export default function MethodologyPage() {
   const refreshedAt = new Intl.DateTimeFormat("en", { dateStyle: "medium", timeZone: "UTC" }).format(new Date(modelConfigGeneratedAt));
   return (
     <main className="method-page frame">
-      <div className="crumbs"><Link href="/">Home</Link><span>/</span><strong>Methodology</strong></div>
       <header><span className="section-index">Formula v{modelFitFormulaVersion} · configs checked {refreshedAt}</span><h1>Useful estimates<br /><em>show their work.</em></h1><p>ModelFit separates the three memory buckets that dominate inference planning, then applies explicit headroom instead of pretending the board’s advertised capacity is fully usable.</p></header>
       <div className="method-grid">
         <aside><strong>Contents</strong><a href="#weights">01 · Model weights</a><a href="#cache">02 · KV cache</a><a href="#runtime">03 · Runtime</a><a href="#fit">04 · Fit verdict</a><a href="#limits">05 · Limits</a></aside>

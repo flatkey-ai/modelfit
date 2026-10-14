@@ -32,7 +32,6 @@ export default function GuidesIndexPage() {
   return (
     <main className="guides-index-page">
       <section className="directory-hero frame">
-        <div className="crumbs"><Link href="/">Home</Link><span>/</span><strong>Guides</strong></div>
         <div className="directory-title">
           <div><span className="directory-stat-badge"><b>{guides.length}</b> deployment guides</span><h1>Understand<br /><em>the estimate.</em></h1></div>
           <div className="directory-lede"><p>Short answers are useful, but capacity decisions need the reasoning behind them. These guides explain the inputs that move LLM memory and GPU fit.</p><Link href="/methodology">Review the calculation methodology →</Link></div>

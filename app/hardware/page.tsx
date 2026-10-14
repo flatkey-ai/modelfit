@@ -30,7 +30,6 @@ export default function HardwareIndexPage() {
     <main className="hardware-index-page">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(itemList) }} />
       <section className="directory-hero frame">
-        <div className="crumbs"><Link href="/">Home</Link><span>/</span><strong>Hardware</strong></div>
         <div className="directory-title">
           <div><span className="directory-stat-badge"><b>{hardware.length}</b> GPU profiles</span><h1>Choose memory<br /><em>before speed.</em></h1></div>
           <div className="directory-lede"><p>For inference, a faster GPU is not useful if the model and workload cannot fit. Start with usable VRAM, then evaluate throughput, latency, software support, and price.</p><Link href="/calculator">Test your workload →</Link></div>
