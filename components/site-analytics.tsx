@@ -4,8 +4,6 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
 const consentKey = "flatkey_analytics_consent";
-const identityKey = "modelfit_analytics_id";
-const token = process.env.NEXT_PUBLIC_MIXPANEL_TOKEN || "cf2f149bd61f607c3fd578596ad86921";
 const gaMeasurementId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID?.trim();
 
 type EventProperties = Record<string, boolean | number | string | undefined>;
@@ -19,14 +17,6 @@ declare global {
 
 function analyticsAllowed() {
   return typeof window !== "undefined" && window.localStorage.getItem(consentKey) === "granted";
-}
-
-function getDistinctId() {
-  const current = window.localStorage.getItem(identityKey);
-  if (current) return current;
-  const created = window.crypto.randomUUID();
-  window.localStorage.setItem(identityKey, created);
-  return created;
 }
 
 function ensureGoogleAnalytics() {
@@ -56,40 +46,18 @@ function currentAttribution() {
 }
 
 export function trackSiteEvent(event: string, properties: EventProperties = {}) {
-  if (!analyticsAllowed()) return;
+  if (!analyticsAllowed() || !gaMeasurementId) return;
   const attribution = currentAttribution();
-  const payload = [{
-    event,
-    properties: {
-      token,
-      distinct_id: getDistinctId(),
-      source_site: "modelfit",
-      path: window.location.pathname,
-      url: window.location.href,
-      referrer: document.referrer || undefined,
-      time: Math.floor(Date.now() / 1000),
-      ...attribution,
-      ...properties,
-    },
-  }];
-  void fetch("https://api-js.mixpanel.com/track/?verbose=0", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
-    keepalive: true,
-  }).catch(() => undefined);
-
-  if (gaMeasurementId) {
-    ensureGoogleAnalytics();
-    const gaEvent = event === "page_viewed" ? "page_view" : event;
-    window.gtag?.("event", gaEvent, {
-      page_path: window.location.pathname,
-      page_location: window.location.href,
-      page_referrer: document.referrer || undefined,
-      ...attribution,
-      ...properties,
-    });
-  }
+  ensureGoogleAnalytics();
+  const gaEvent = event === "page_viewed" ? "page_view" : event;
+  window.gtag?.("event", gaEvent, {
+    source_site: "modelfit",
+    page_path: window.location.pathname,
+    page_location: window.location.href,
+    page_referrer: document.referrer || undefined,
+    ...attribution,
+    ...properties,
+  });
 }
 
 function classifyLink(anchor: HTMLAnchorElement) {
