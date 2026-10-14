@@ -28,8 +28,12 @@ export function normalizeModelConfig(manifest, config, observedAt, sourceUrl, re
 
 export async function collectModelConfig(manifest, fetchImpl = fetch) {
   const sourceUrl = `https://huggingface.co/${manifest.modelId}/resolve/main/config.json`;
+  const token = process.env.HUGGING_FACE_TOKEN?.trim();
   const response = await fetchImpl(sourceUrl, {
-    headers: { "user-agent": "ModelFitDataBot/1.0 (+https://modelfit.cc/methodology)" },
+    headers: {
+      "user-agent": "ModelFitDataBot/1.0 (+https://modelfit.cc/methodology)",
+      ...(token ? { authorization: `Bearer ${token}` } : {}),
+    },
     redirect: "follow",
   });
   if (!response.ok) throw new Error(`${manifest.modelId}: HTTP ${response.status}`);

@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { FitCalculator } from "@/components/fit-calculator";
 import { estimateMemory, getModel, getModelConfig, hardware, models, quantizations } from "@/lib/data";
 import { flatkeyComputeUrl } from "@/lib/site";
+import { getHardwarePriceSnapshot } from "@/lib/pricing";
 
 type PageProps = { params: Promise<{ slug: string }> };
 
@@ -36,6 +37,7 @@ export default async function ModelPage({ params }: PageProps) {
   const model = getModel((await params).slug);
   if (!model) notFound();
   const modelConfig = getModelConfig(model.slug);
+  const priceSnapshot = await getHardwarePriceSnapshot();
   const q4 = quantizations.find((entry) => entry.id === "q4")!;
   const bf16 = quantizations.find((entry) => entry.id === "bf16")!;
   const q4Estimate = estimateMemory(model, q4, Math.min(8192, model.nativeContext), 1);
@@ -58,8 +60,8 @@ export default async function ModelPage({ params }: PageProps) {
         </div>
         {modelConfig && (
           <div className={`config-evidence ${modelConfig.status}`}>
-            <span>{modelConfig.status === "verified" ? "Verified public config" : "Manifest baseline"}</span>
-            <p>{modelConfig.status === "verified" ? "Architecture values were refreshed from the public model config." : "The public config is gated; calculations use the reviewed manifest fallback."}</p>
+            <span>{modelConfig.status === "verified" ? "Verified public config" : modelConfig.status === "last-known-good" ? "Last-known-good official config" : "Reviewed manifest baseline"}</span>
+            <p>{modelConfig.status === "verified" ? "Architecture values were refreshed from the public model config." : modelConfig.status === "last-known-good" ? "The current public request is gated; calculations retain the most recent successfully verified official config." : "No verified snapshot is available; calculations use the reviewed architecture values in the ModelFit manifest."}</p>
             <a href={modelConfig.sourceUrl} target="_blank" rel="noreferrer">Evidence · {new Intl.DateTimeFormat("en", { dateStyle: "medium", timeZone: "UTC" }).format(new Date(modelConfig.observedAt))} ↗</a>
           </div>
         )}
@@ -79,7 +81,7 @@ export default async function ModelPage({ params }: PageProps) {
 
       <section className="embedded-calculator frame" id="fit-planner">
         <div className="section-intro"><div><span className="section-index">Interactive plan</span><h2>Tune {model.family}.</h2></div><p>The worksheet starts with this model selected. Adjust context, precision, cache, and GPU count for your workload.</p></div>
-        <FitCalculator initialModelSlug={model.slug} compact showCommercialCta={false} />
+        <FitCalculator initialModelSlug={model.slug} compact showCommercialCta={false} priceSnapshot={priceSnapshot} />
       </section>
     </main>
   );

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { FitCalculator } from "@/components/fit-calculator";
 import { estimateMemory, hardware, models, quantizations } from "@/lib/data";
 import { flatkeyWebsiteUrl } from "@/lib/site";
+import { getHardwarePriceSnapshot } from "@/lib/pricing";
 
 function getQ4Memory(slug: string) {
   const model = models.find((entry) => entry.slug === slug)!;
@@ -17,7 +18,8 @@ function getRecommendedGpu(memoryGiB: number) {
   return hardware.find((gpu) => memoryGiB <= gpu.vramGb * 0.85)?.name ?? "Multi-GPU";
 }
 
-export default function Home() {
+export default async function Home() {
+  const priceSnapshot = await getHardwarePriceSnapshot();
   return (
     <main>
       <section className="hero frame">
@@ -25,13 +27,14 @@ export default function Home() {
           <div className="hero-label"><span>01</span><p>Open-model deployment planner</p></div>
           <h1>Will this<br />model <em>fit?</em></h1>
           <p className="hero-intro">Turn model size, quantization, context, and concurrency into a practical GPU plan—before you reserve a machine.</p>
+          <p className="hero-ceiling-explainer"><strong>85% VRAM ceiling</strong><span>ModelFit reserves the remaining 15% for runtime workspace, allocator variance, and fragmentation. It is a safety target—not a fit score.</span></p>
           <div className="hero-links"><a href={flatkeyWebsiteUrl("home_hero")} target="_blank" rel="sponsored nofollow noreferrer">Explore Flatkey GPU Cloud <b>↗</b></a><Link href="#calculator">Check a model ↓</Link></div>
         </div>
         <div className="hero-visual" aria-hidden="true">
           <div className="orbit orbit-a"><span>WEIGHTS</span></div>
           <div className="orbit orbit-b"><span>KV CACHE</span></div>
           <div className="orbit orbit-c"><span>RUNTIME</span></div>
-          <div className="hero-core"><span>FIT</span><strong>85%</strong><small>target ceiling</small></div>
+          <div className="hero-core"><span>VRAM</span><strong>85%</strong><small>planning ceiling</small></div>
           <div className="plot-note note-a"><i />MODEL</div>
           <div className="plot-note note-b"><i />VRAM</div>
           <div className="plot-note note-c"><i />COST</div>
@@ -47,7 +50,7 @@ export default function Home() {
           <div><span className="section-index">02 / Calculator</span><h2>Build a deployment worksheet.</h2></div>
           <p>Start with an open model, then adjust the details that actually change memory: precision, context length, concurrent sequences, and tensor-parallel GPU count.</p>
         </div>
-        <FitCalculator />
+        <FitCalculator priceSnapshot={priceSnapshot} />
       </section>
 
       <section className="models-section" id="models">

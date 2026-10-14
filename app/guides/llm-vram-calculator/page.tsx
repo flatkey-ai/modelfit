@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { FitCalculator } from "@/components/fit-calculator";
 import { absoluteUrl } from "@/lib/site";
+import { getHardwarePriceSnapshot } from "@/lib/pricing";
 
 export const metadata: Metadata = {
   title: "LLM VRAM calculator: estimate GPU memory",
@@ -19,7 +20,8 @@ const faq = [
   { question: "Should I plan to use all advertised GPU memory?", answer: "No. ModelFit targets an 85% ceiling so kernels, allocators, graph capture, and workload variation have room. The appropriate margin can differ by runtime and provider." },
 ];
 
-export default function VramGuidePage() {
+export default async function VramGuidePage() {
+  const priceSnapshot = await getHardwarePriceSnapshot();
   const jsonLd = {
     "@context": "https://schema.org",
     "@graph": [
@@ -42,7 +44,7 @@ export default function VramGuidePage() {
           <div className="article-content">
             <section className="article-lead"><p>“How much VRAM does this model need?” sounds like a single-number question. It is really two questions: how much memory loads the model, and how much additional memory serves the workload you expect. A useful estimate keeps those parts visible.</p><p>This online LLM VRAM calculator is designed for both local evaluation and cloud inference planning. It does not claim benchmark accuracy; it gives you an auditable starting envelope that you can validate on the intended runtime.</p></section>
 
-            <section id="calculator" className="article-tool"><div className="article-heading"><span>Interactive tool</span><h2>Calculate the deployment envelope.</h2><p>Select an open model, weight format, context length, concurrent sequences, and GPU count. The result shows each memory bucket and suitable hardware profiles.</p></div><FitCalculator compact showCommercialCta={false} /></section>
+            <section id="calculator" className="article-tool"><div className="article-heading"><span>Interactive tool</span><h2>Calculate the deployment envelope.</h2><p>Select an open model, weight format, context length, concurrent sequences, and GPU count. The result shows each memory bucket and suitable hardware profiles.</p></div><FitCalculator compact showCommercialCta={false} priceSnapshot={priceSnapshot} /></section>
 
             <section id="formula"><div className="article-heading"><span>01 / The formula</span><h2>Start with four memory buckets.</h2></div><p>A practical LLM memory estimate can be expressed as:</p><pre><code>recommended VRAM = (weights + KV cache + runtime workspace) / target utilization</code></pre><p>ModelFit uses an 85% target utilization. Dividing the workload subtotal by 0.85 converts it into recommended capacity with 15% operating headroom. That margin is a planning choice, not a universal runtime constant.</p><div className="definition-grid"><div><strong>Weights</strong><p>Parameter count multiplied by bytes per parameter, plus format overhead.</p></div><div><strong>KV cache</strong><p>Attention keys and values retained for active tokens and sequences.</p></div><div><strong>Workspace</strong><p>Kernels, temporary buffers, graph capture, and allocator needs.</p></div><div><strong>Headroom</strong><p>Capacity intentionally left outside the expected workload.</p></div></div></section>
 

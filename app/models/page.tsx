@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { estimateMemory, models, quantizations } from "@/lib/data";
+import { estimateMemory, getModelConfig, modelConfigGeneratedAt, models, quantizations } from "@/lib/data";
 import { absoluteUrl } from "@/lib/site";
 
 export const metadata: Metadata = {
@@ -24,6 +24,7 @@ function q4Estimate(slug: string) {
 }
 
 export default function ModelsIndexPage() {
+  const verifiedCount = models.filter((model) => getModelConfig(model.slug)?.status === "verified").length;
   const itemList = {
     "@context": "https://schema.org",
     "@type": "ItemList",
@@ -49,11 +50,12 @@ export default function ModelsIndexPage() {
 
       <section className="directory-content frame">
         <div className="directory-note"><strong>Reading the table</strong><p>Q4 estimates use one 8K sequence plus runtime workspace. They are planning estimates—not measured throughput—and the exact runtime, quantization method, adapters, and graph capture can change real usage.</p></div>
+        <div className="directory-note data-quality-note"><strong>Model data status</strong><p>{verifiedCount} of {models.length} model configurations were verified in the latest public refresh on {new Intl.DateTimeFormat("en", { dateStyle: "medium", timeZone: "UTC" }).format(new Date(modelConfigGeneratedAt))}. Gated models retain their last successfully verified official configuration and are labeled on the profile page.</p></div>
         <div className="directory-table" role="table" aria-label="LLM model VRAM requirements">
           <div className="directory-table-head" role="row"><span>Model</span><span>Parameters</span><span>Native context</span><span>Q4 · 8K estimate</span><span>Profile</span></div>
           {models.map((model) => (
             <Link className="directory-table-row" href={`/models/${model.slug}`} role="row" key={model.slug}>
-              <span className="directory-name"><strong>{model.name}</strong><small>{model.maker} · {model.architecture}</small></span>
+              <span className="directory-name"><strong>{model.name}</strong><small>{model.maker} · {model.architecture} · {getModelConfig(model.slug)?.status === "verified" ? "verified" : "last-known-good"}</small></span>
               <span data-label="Parameters">{model.parametersB}B</span>
               <span data-label="Native context">{Math.round(model.nativeContext / 1024)}K</span>
               <span data-label="Q4 · 8K estimate">~{q4Estimate(model.slug).toFixed(1)} GiB</span>

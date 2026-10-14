@@ -52,7 +52,7 @@ export default function HardwareIndexPage() {
             );
           })}
         </div>
-        <p className="sample-disclaimer">Hourly figures on profile pages are sample planning inputs, not live quotes or benchmark promises. Availability, interconnect, region, framework version, and provider configuration all affect a production decision.</p>
+        <p className="sample-disclaimer">Profile pages use the Flatkey live GPU price index when a matching market is covered, and clearly labeled reviewed references elsewhere. Rates remain planning inputs—not quotes or benchmark promises—and availability, region, interconnect, framework version, and provider configuration all affect a production decision.</p>
       </section>
 
       <section className="hardware-principles frame">

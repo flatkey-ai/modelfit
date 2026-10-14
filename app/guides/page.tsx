@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { seoGuides } from "@/lib/seo-guides";
 
 export const metadata: Metadata = {
   title: "LLM deployment and VRAM guides",
@@ -26,6 +27,14 @@ const guides = [
     description: "See why KV cache grows with tokens and concurrent sequences—and why the model’s maximum context is not always the practical serving target.",
     tags: ["KV cache", "context window", "concurrency"],
   },
+  ...seoGuides.map((guide) => ({
+    number: guide.number,
+    href: `/guides/${guide.slug}`,
+    eyebrow: guide.eyebrow,
+    title: guide.title,
+    description: guide.description,
+    tags: guide.tags,
+  })),
 ];
 
 export default function GuidesIndexPage() {

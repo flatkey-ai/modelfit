@@ -6,8 +6,16 @@ import { useEffect, useState } from "react";
 const consentKey = "flatkey_analytics_consent";
 const identityKey = "modelfit_analytics_id";
 const token = process.env.NEXT_PUBLIC_MIXPANEL_TOKEN || "cf2f149bd61f607c3fd578596ad86921";
+const gaMeasurementId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID?.trim();
 
 type EventProperties = Record<string, boolean | number | string | undefined>;
+
+declare global {
+  interface Window {
+    dataLayer?: unknown[][];
+    gtag?: (...args: unknown[]) => void;
+  }
+}
 
 function analyticsAllowed() {
   return typeof window !== "undefined" && window.localStorage.getItem(consentKey) === "granted";
@@ -21,8 +29,35 @@ function getDistinctId() {
   return created;
 }
 
+function ensureGoogleAnalytics() {
+  if (!gaMeasurementId || typeof window === "undefined") return;
+  window.dataLayer ||= [];
+  window.gtag ||= (...args: unknown[]) => { window.dataLayer?.push(args); };
+  if (!document.querySelector(`script[data-ga4-id="${gaMeasurementId}"]`)) {
+    const script = document.createElement("script");
+    script.async = true;
+    script.src = `https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(gaMeasurementId)}`;
+    script.dataset.ga4Id = gaMeasurementId;
+    document.head.appendChild(script);
+    window.gtag("js", new Date());
+    window.gtag("config", gaMeasurementId, { send_page_view: false, anonymize_ip: true });
+  }
+}
+
+function currentAttribution() {
+  if (typeof window === "undefined") return {};
+  const query = new URLSearchParams(window.location.search);
+  return {
+    utm_source: query.get("utm_source") || undefined,
+    utm_medium: query.get("utm_medium") || undefined,
+    utm_campaign: query.get("utm_campaign") || undefined,
+    utm_content: query.get("utm_content") || undefined,
+  };
+}
+
 export function trackSiteEvent(event: string, properties: EventProperties = {}) {
   if (!analyticsAllowed()) return;
+  const attribution = currentAttribution();
   const payload = [{
     event,
     properties: {
@@ -33,6 +68,7 @@ export function trackSiteEvent(event: string, properties: EventProperties = {}) 
       url: window.location.href,
       referrer: document.referrer || undefined,
       time: Math.floor(Date.now() / 1000),
+      ...attribution,
       ...properties,
     },
   }];
@@ -42,6 +78,18 @@ export function trackSiteEvent(event: string, properties: EventProperties = {}) 
     body: JSON.stringify(payload),
     keepalive: true,
   }).catch(() => undefined);
+
+  if (gaMeasurementId) {
+    ensureGoogleAnalytics();
+    const gaEvent = event === "page_viewed" ? "page_view" : event;
+    window.gtag?.("event", gaEvent, {
+      page_path: window.location.pathname,
+      page_location: window.location.href,
+      page_referrer: document.referrer || undefined,
+      ...attribution,
+      ...properties,
+    });
+  }
 }
 
 function classifyLink(anchor: HTMLAnchorElement) {
@@ -62,7 +110,10 @@ export function SiteAnalytics() {
   }, []);
 
   useEffect(() => {
-    if (consent === "granted") trackSiteEvent("page_viewed", { page_path: pathname });
+    if (consent === "granted") {
+      ensureGoogleAnalytics();
+      trackSiteEvent("page_viewed", { page_path: pathname });
+    }
   }, [consent, pathname]);
 
   useEffect(() => {

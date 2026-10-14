@@ -8,15 +8,16 @@ The product direction is inspired by RunMyLLM’s model/hardware decision flow, 
 
 - Interactive weight, KV-cache, and runtime-memory estimator
 - Quantization, context, concurrency, cache precision, and GPU-count controls
-- GPU-fit recommendations with sample hourly cost
+- GPU-fit recommendations with hourly Flatkey price-index data where covered and labeled reviewed references elsewhere
 - Model directory plus 11 indexable model requirement pages
 - GPU hardware directory plus 9 model-fit profile pages
-- Substantial VRAM-calculation and context-window guides with FAQs
+- Six substantial VRAM, quantization, multi-GPU, model-selection, and hardware-comparison guides with FAQs
 - Copyable vLLM command templates with explicit checkpoint and backend caveats
 - Published formula and limitations page
 - Per-page canonical metadata, structured data, sitemap, robots policy, standalone Next.js build, and Docker image
 - One result-level Flatkey Compute CTA on eligible calculator, model-fit, and hardware-fit pages, with model and hardware UTM attribution
 - Daily model-configuration refreshes from official Hugging Face repositories
+- Consent-gated GA4 acquisition measurement and Mixpanel calculator-funnel events
 
 ## Local development
 
@@ -57,6 +58,12 @@ Copy `.env.example` to `.env.local` and set:
 - `NEXT_PUBLIC_SITE_URL`: canonical production origin
 - `NEXT_PUBLIC_SITE_NAME`: final public brand
 - `NEXT_PUBLIC_FLATKEY_COMPUTE_URL`: Flatkey Compute product entry (defaults to `https://console.flatkey.ai/compute/market`)
+- `NEXT_PUBLIC_GA_MEASUREMENT_ID`: GA4 web stream measurement ID
+- `NEXT_PUBLIC_MIXPANEL_TOKEN`: Mixpanel project token
+- `FLATKEY_PRICE_INDEX_URL`: hourly GPU price-index API (defaults to Flatkey's public index)
+- `HUGGING_FACE_TOKEN`: optional read token for gated official model configs
+
+Analytics never initializes until `flatkey_analytics_consent=granted` is present in local storage or the matching cookie. Mixpanel measures calculator progression and compute handoff; GA4 measures acquisition, landing-page behavior, and the same conversion events for channel reporting.
 
 ## Estimation scope
 
