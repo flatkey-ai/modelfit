@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-14T09:02:21.104Z",
+  "generatedAt": "2026-10-15T08:36:17.001Z",
   "models": [
     {
       "slug": "phi-3-mini-128k-instruct",
@@ -11,7 +11,7 @@
       "headDimension": 96,
       "kvGiBPer1kTokens": 0.366211,
       "sourceUrl": "https://huggingface.co/microsoft/Phi-3-mini-128k-instruct/resolve/main/config.json",
-      "observedAt": "2026-10-14T09:02:20.334Z",
+      "observedAt": "2026-10-15T08:36:16.489Z",
       "revision": "f3c06aed622e14ca0abf5115094e4fc9a9948f36",
       "status": "verified"
     },
@@ -24,7 +24,7 @@
       "headDimension": 128,
       "kvGiBPer1kTokens": 0.12207,
       "sourceUrl": "https://huggingface.co/mistralai/Mistral-7B-Instruct-v0.3/resolve/main/config.json",
-      "observedAt": "2026-10-14T09:02:20.422Z",
+      "observedAt": "2026-10-15T08:36:16.611Z",
       "revision": "c170c708c41dac9275d15a8fff4eca08d52bab71",
       "status": "verified"
     },
@@ -37,7 +37,7 @@
       "headDimension": 128,
       "kvGiBPer1kTokens": 0.053406,
       "sourceUrl": "https://huggingface.co/Qwen/Qwen2.5-7B-Instruct/resolve/main/config.json",
-      "observedAt": "2026-10-14T09:02:20.504Z",
+      "observedAt": "2026-10-15T08:36:16.664Z",
       "revision": "a09a35458c702b33eeacc393d103063234e8bc28",
       "status": "verified"
     },
@@ -78,7 +78,7 @@
       "headDimension": 128,
       "kvGiBPer1kTokens": 0.183105,
       "sourceUrl": "https://huggingface.co/Qwen/Qwen2.5-14B-Instruct/resolve/main/config.json",
-      "observedAt": "2026-10-14T09:02:20.722Z",
+      "observedAt": "2026-10-15T08:36:16.797Z",
       "revision": "cf98f3b3bbb457ad9e2bb7baf9a0125b6b88caa8",
       "status": "verified"
     },
@@ -105,7 +105,7 @@
       "headDimension": 128,
       "kvGiBPer1kTokens": 0.244141,
       "sourceUrl": "https://huggingface.co/Qwen/Qwen2.5-32B-Instruct/resolve/main/config.json",
-      "observedAt": "2026-10-14T09:02:20.871Z",
+      "observedAt": "2026-10-15T08:36:16.876Z",
       "revision": "5ede1c97bbab6ce5cda5812749b4c0bdf79b18dd",
       "status": "verified"
     },
@@ -118,7 +118,7 @@
       "headDimension": 128,
       "kvGiBPer1kTokens": 0.12207,
       "sourceUrl": "https://huggingface.co/mistralai/Mixtral-8x7B-Instruct-v0.1/resolve/main/config.json",
-      "observedAt": "2026-10-14T09:02:20.956Z",
+      "observedAt": "2026-10-15T08:36:16.925Z",
       "revision": "eba92302a2861cdc0098cc54bc9f17cb2c47eb61",
       "status": "verified"
     },
@@ -145,7 +145,7 @@
       "headDimension": 128,
       "kvGiBPer1kTokens": 0.305176,
       "sourceUrl": "https://huggingface.co/Qwen/Qwen2.5-72B-Instruct/resolve/main/config.json",
-      "observedAt": "2026-10-14T09:02:21.104Z",
+      "observedAt": "2026-10-15T08:36:17.001Z",
       "revision": "495f39366efef23836d0cfae4fbe635880d2be31",
       "status": "verified"
     }
